@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Korean Food Photo Quiz</title>
+<style>
+body{font-family:Arial;max-width:900px;margin:auto;padding:20px;text-align:center}
+img{max-width:500px;max-height:350px;border:1px solid #ccc}
+button{display:block;width:300px;margin:8px auto;padding:10px}
+</style>
+</head>
+<body>
+<h1>🇰🇷 Korean Food Photo Quiz</h1>
+<p>Look at the photo and choose the Korean name.</p>
+<img id="food"><br>
+<div id="choices"></div>
+<h3>Score: <span id="score">0</span></h3>
+
+<script>
+const foods=[
+["bibimbap.jpg","비빔밥"],
+["samgyetang.jpg","삼계탕"],
+["gimbap.jpg","김밥"],
+["bulgogi.jpg","불고기"],
+["kimchi.jpg","김치"],
+["japchae.jpg","잡채"],
+["tteokbokki.jpg","떡볶이"],
+["naengmyeon.jpg","냉면"],
+["doenjang.jpg","된장찌개"],
+["pajeon.jpg","파전"]
+];
+let score=0;
+
+function shuffle(a){
+ for(let i=a.length-1;i>0;i--){
+  let j=Math.floor(Math.random()*(i+1));
+  [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+
+function nextQ(){
+ let food=foods[Math.floor(Math.random()*foods.length)];
+ document.getElementById("food").src=food[0];
+ let answer=food[1];
+
+ let opts=[answer];
+ while(opts.length<4){
+   let x=foods[Math.floor(Math.random()*foods.length)][1];
+   if(!opts.includes(x)) opts.push(x);
+ }
+ shuffle(opts);
+
+ let div=document.getElementById("choices");
+ div.innerHTML="";
+ opts.forEach(o=>{
+   let b=document.createElement("button");
+   b.innerText=o;
+   b.onclick=()=>{
+      if(o===answer){
+         score++;
+         document.getElementById("score").innerText=score;
+         alert("Correct!");
+      }else{
+         alert("Wrong! Correct answer: "+answer);
+      }
+      nextQ();
+   };
+   div.appendChild(b);
+ });
+}
+nextQ();
+</script>
+</body>
+</html>
