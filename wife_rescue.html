@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Wife Rescue — Command Line Stealth Game</title>
+<style>
+  :root{--bg:#090e1b;--panel:#111a2b;--panel2:#162238;--line:#2c3a54;--text:#edf4ff;--muted:#9aabc6;--cyan:#58e1d5;--purple:#a89bff;--gold:#ffd56a;--red:#ff647c;--green:#9df3a8;--orange:#ffae68}
+  *{box-sizing:border-box}
+  html{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 18% -8%,#1b2948 0%,transparent 42%),radial-gradient(ellipse at 95% 8%,#17283b 0%,transparent 32%),var(--bg)}
+  button,input{font:inherit}
+  button{cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  .wrap{width:min(1360px,100%);margin:0 auto;padding:20px 22px 34px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brandmark{display:grid;place-items:center;width:42px;height:42px;border:1px solid #3f6174;border-radius:13px;background:linear-gradient(145deg,#1c4854,#252849);color:var(--cyan);font-size:19px;font-weight:900;box-shadow:0 0 24px #58e1d51a}
+  .brand-name{font-weight:850;letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+  .brand-sub{margin-top:2px;color:var(--muted);font-size:11px;letter-spacing:.04em}
+  .top-actions{display:flex;align-items:center;gap:8px}
+  .pill{border:1px solid var(--line);background:#111a2a;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px;white-space:nowrap}
+  .pill strong{color:var(--text)}
+  .btn{border:1px solid #364867;background:#1a2740;color:var(--text);border-radius:10px;padding:10px 14px;font-weight:750;font-size:13px;transition:.15s ease}
+  .btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+  .btn.primary{color:#07131b;background:var(--cyan);border-color:var(--cyan)}
+  .btn.danger{border-color:#6d3347;background:#351c2a;color:#ffadba}
+  .btn.small{padding:7px 10px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .eyebrow{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:var(--cyan)}
+  h1{font-size:clamp(26px,4.1vw,44px);line-height:1.05;letter-spacing:-.035em;margin:9px 0 10px}
+  .lede{max-width:720px;margin:0;color:#a9bad3;font-size:14px;line-height:1.65}
+  .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px}
+  .hero-note{max-width:265px;min-width:195px;padding:13px 15px;border-left:2px solid var(--gold);background:linear-gradient(90deg,#ffd56a10,transparent);color:#c7d2e5;font-size:12px;line-height:1.6}
+  .hero-note strong{display:block;color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+  .statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .stat{border:1px solid var(--line);border-radius:12px;background:#111a2a;padding:12px 14px;min-width:0}
+  .stat-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:750}
+  .stat-value{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:20px;font-weight:850;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat-value small{font-size:11px;letter-spacing:0;color:var(--muted);font-weight:650}
+  .timer-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #9df3a877}
+  .timer-dot.hot{background:var(--red);box-shadow:0 0 12px #ff647c99}
+  .layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.88fr);gap:14px;align-items:start}
+  .panel{border:1px solid var(--line);background:linear-gradient(155deg,#111a2b,#0e1727);border-radius:16px;overflow:hidden;min-width:0;box-shadow:0 16px 48px #00000017}
+  .panel-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .panel-title{font-size:13px;font-weight:850;letter-spacing:.03em}
+  .panel-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}
+  .floor-badge{font-size:11px;font-weight:850;padding:6px 10px;color:var(--cyan);border:1px solid #2d5b63;background:#123038;border-radius:8px;white-space:nowrap}
+  .board-wrap{padding:13px;background:#0a1220}
+  #gameCanvas{display:block;width:100%;height:auto;aspect-ratio:21/13;border-radius:8px;background:#0c1624;image-rendering:pixelated;touch-action:manipulation}
+  .map-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 15px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;flex-wrap:wrap}
+  .legend{display:flex;gap:12px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .swatch{width:9px;height:9px;border-radius:3px;display:inline-block}
+  .side{display:grid;gap:14px}
+  .content{padding:16px 17px}
+  .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#afc1dd;font-weight:850;margin:0 0 10px}
+  .objective{font-size:14px;line-height:1.6;color:#e6efff;margin:0 0 13px}
+  .objective strong{color:var(--gold)}
+  .progress{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:14px 0 9px}
+  .progress-item{height:5px;background:#2a364b;border-radius:99px;overflow:hidden}
+  .progress-item.done{background:var(--cyan)}
+  .progress-item.current{background:linear-gradient(90deg,var(--cyan) 0 48%,#2a364b 48%)}
+  .progress-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
+  .shell-row{display:flex;gap:6px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#0a1220}
+  .shell-btn{flex:1;background:transparent;border:0;color:var(--muted);padding:9px 8px;border-radius:7px;font-size:12px;font-weight:800}
+  .shell-btn.active{background:#203249;color:var(--cyan);box-shadow:inset 0 0 0 1px #3d6879}
+  .terminal-callout{margin-top:12px;background:#101b2b;border:1px solid #273750;border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start}
+  .terminal-icon{flex:0 0 29px;height:29px;display:grid;place-items:center;background:#173c37;border:1px solid #28695e;color:var(--green);border-radius:7px;font-size:14px;font-weight:900}
+  .terminal-callout p{margin:0;color:#c6d2e6;font-size:12px;line-height:1.6}
+  .terminal-callout strong{color:#fff}
+  .cmd-examples{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 0}
+  .cmd-chip{border:1px solid #334760;background:#0c1524;color:#bed0e9;border-radius:6px;padding:5px 7px;font:11px ui-monospace,SFMono-Regular,Consolas,monospace}
+  .event-log{display:grid;gap:9px;max-height:180px;overflow:auto;padding-right:3px}
+  .event{display:flex;align-items:flex-start;gap:9px;color:#bdcce0;font-size:11px;line-height:1.5}
+  .event-dot{flex:0 0 7px;height:7px;border-radius:50%;margin-top:5px;background:var(--cyan)}
+  .event.warn .event-dot{background:var(--gold)}.event.danger .event-dot{background:var(--red)}
+  .event-time{color:#7386a3;font-variant-numeric:tabular-nums;margin-right:5px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .control-key{display:flex;gap:8px;align-items:center;padding:9px 10px;border:1px solid #2b3a53;background:#0d1625;border-radius:9px;color:#aabbcf;font-size:11px}
+  kbd{display:inline-grid;place-items:center;min-width:25px;height:24px;padding:0 5px;border:1px solid #445773;border-bottom-width:2px;border-radius:5px;background:#1a263a;color:#eaf1ff;font-size:11px;font-weight:850}
+  .footer-note{color:#7386a0;font-size:10px;line-height:1.6;margin:16px 2px 0}
+  .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:18px;background:#030713d9;backdrop-filter:blur(9px)}
+  .overlay.show{display:flex}
+  .dialog{width:min(620px,100%);max-height:min(90vh,850px);overflow:auto;border:1px solid #394e70;border-radius:18px;background:linear-gradient(150deg,#17243a,#0e1627 70%);box-shadow:0 28px 90px #000a}
+  .dialog-top{padding:22px 24px 17px;border-bottom:1px solid #2b3b56}
+  .dialog-body{padding:20px 24px 24px}
+  .dialog h2{font-size:26px;letter-spacing:-.03em;margin:7px 0 10px}
+  .dialog p{color:#bac8df;font-size:13px;line-height:1.7;margin:0 0 12px}
+  .storyline{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}
+  .story-card{border:1px solid #2f405d;background:#101b2e;border-radius:10px;padding:12px}
+  .story-card b{display:block;font-size:11px;color:var(--cyan);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em}
+  .story-card span{font-size:11px;color:#aebed6;line-height:1.5}
+  .terminal-dialog{width:min(720px,100%);border-color:#2b5a50;background:#0b111b}
+  .terminal-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#101b28;border-bottom:1px solid #203446}
+  .terminal-brand{display:flex;align-items:center;gap:9px;font:12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#a8f4d8}
+  .terminal-leds{display:flex;gap:5px}.terminal-leds i{width:7px;height:7px;border-radius:50%;background:#40546b}.terminal-leds i:first-child{background:#fb667c}.terminal-leds i:nth-child(2){background:#ffd56a}.terminal-leds i:nth-child(3){background:#9df3a8}
+  .terminal-content{padding:15px 16px 14px}
+  .terminal-caption{font-size:10px;line-height:1.6;color:#7791a7;margin-bottom:10px}
+  #terminalOutput{height:min(310px,38vh);min-height:170px;overflow:auto;padding:12px;border:1px solid #203448;border-radius:8px;background:#070c13;color:#bfddcf;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+  .term-line{margin:0 0 2px}.term-line.input{color:#90f2cb}.term-line.error{color:#ff8ca0}.term-line.notice{color:#8bd4ff}.term-line.dim{color:#718b9b}
+  .terminal-form{display:flex;gap:8px;margin-top:10px}
+  .prompt{align-self:center;color:#88efbd;font:12px ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap}
+  #terminalInput{width:100%;min-width:0;background:#08101a;border:1px solid #2b4c51;border-radius:8px;color:#d6f8e7;padding:11px 12px;font:13px ui-monospace,SFMono-Regular,Consolas,monospace}
+  #terminalInput::placeholder{color:#566f7d}
+  .term-help{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#718a9c;font-size:10px;margin-top:10px;flex-wrap:wrap}
+  .ending-dialog{text-align:center;width:min(510px,100%)}
+  .ending-icon{margin:0 auto 14px;width:60px;height:60px;border:1px solid #34756a;background:#133a36;color:var(--green);border-radius:18px;display:grid;place-items:center;font-size:27px}
+  .ending-dialog h2{font-size:30px}
+  .ending-dialog .dialog-body{padding-top:25px}
+  .ending-dialog .btn{min-width:140px;margin-top:7px}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:50;max-width:min(600px,92vw);padding:10px 15px;border:1px solid #3d536f;border-radius:9px;background:#14223a;color:#ecf5ff;font-size:12px;box-shadow:0 12px 35px #0008;transition:.2s ease;text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .touch-controls{display:none;margin-top:12px;grid-template-columns:repeat(3,44px);justify-content:center;gap:5px}
+  .touch-controls button{height:40px;padding:0;background:#17253a;border:1px solid #3b506c;color:#ecf5ff;border-radius:8px;font-weight:900}
+  .touch-controls .empty{visibility:hidden}
+  @media(max-width:960px){.layout{grid-template-columns:minmax(0,1.2fr) minmax(270px,.85fr)}.hero-note{display:none}}
+  @media(max-width:760px){.wrap{padding:14px 12px 28px}.hero{margin-bottom:17px}.topbar{margin-bottom:18px}.brand-sub{display:none}.pill{display:none}.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .panel:first-child{grid-column:1/-1}.statrow{gap:7px}.stat{padding:10px}.stat-value{font-size:17px}.content{padding:14px}.board-wrap{padding:8px}.panel-head{padding:13px}.touch-controls{display:grid}}
+  @media(max-width:460px){.side{grid-template-columns:1fr}.side .panel:first-child{grid-column:auto}.statrow{grid-template-columns:repeat(2,1fr)}.storyline{grid-template-columns:1fr}.story-card{padding:9px 11px}.dialog-top{padding:18px}.dialog-body{padding:17px 18px}.top-actions .btn{padding:8px 10px}.map-foot{font-size:10px}.legend{gap:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><div class="brandmark">WR</div><div><div class="brand-name">Wife Rescue</div><div class="brand-sub">A command-line stealth mission</div></div></div>
+    <div class="top-actions"><div class="pill">MISSION <strong>WR–05</strong></div><div class="pill">MODE <strong id="shellTop">Linux Bash</strong></div><button class="btn small" id="restartBtn" type="button">↻ Restart</button></div>
+  </header>
+
+  <section class="hero">
+    <div><div class="eyebrow">Five floors. One extraction window.</div><h1>Get in. Read the pattern.<br>Get her out.</h1><p class="lede">A protected building, repeating patrols, and a ticking clock. Learn the shell, inspect security files, disable cameras, and choose your route instead of rushing blindly.</p></div>
+    <div class="hero-note"><strong>Mission briefing</strong>Your wife is being held on Floor 5. Reach the roof and board the helicopter before the 30-minute timer expires.</div>
+  </section>
+
+  <section class="statrow" aria-label="Mission status">
+    <div class="stat"><div class="stat-label">Time remaining</div><div class="stat-value"><span class="timer-dot" id="timerDot"></span><span id="timer">30:00</span></div></div>
+    <div class="stat"><div class="stat-label">Current location</div><div class="stat-value"><span id="floorValue">Floor 1</span><small id="zoneValue">/ Lobby</small></div></div>
+    <div class="stat"><div class="stat-label">Security cameras</div><div class="stat-value"><span id="cameraValue">2</span><small id="cameraSub">active</small></div></div>
+    <div class="stat"><div class="stat-label">Mission status</div><div class="stat-value" style="font-size:15px" id="missionStatus">Not started</div></div>
+  </section>
+
+  <main class="layout">
+    <section class="panel map-panel">
+      <div class="panel-head"><div><div class="panel-kicker">Live tactical view</div><div class="panel-title" id="mapTitle">FLOOR 1 / LOBBY</div></div><div class="floor-badge" id="mapBadge">LEVEL 01</div></div>
+      <div class="board-wrap"><canvas id="gameCanvas" width="630" height="390" aria-label="Top-down building map. Move with WASD or arrow keys."></canvas>
+        <div class="touch-controls" aria-label="Touch movement controls"><span class="empty"></span><button data-move="up" aria-label="Move up">↑</button><span class="empty"></span><button data-move="left" aria-label="Move left">←</button><button data-move="down" aria-label="Move down">↓</button><button data-move="right" aria-label="Move right">→</button></div>
+      </div>
+      <div class="map-foot"><div class="legend"><span><i class="swatch" style="background:#a89bff"></i>You</span><span><i class="swatch" style="background:#ff647c"></i>Guard</span><span><i class="swatch" style="background:#ffae68"></i>Dog</span><span><i class="swatch" style="background:#ff6678"></i>Camera cone</span><span><i class="swatch" style="background:#ffd56a"></i>Exit</span></div><span id="mapHint">Click a floor tile to plot a route</span><span id="coordReadout">Grid ready</span></div>
+    </section>
+
+    <aside class="side">
+      <section class="panel"><div class="panel-head"><div><div class="panel-kicker">Primary objective</div><div class="panel-title">Mission control</div></div><span class="floor-badge" id="objectiveBadge">START</span></div>
+        <div class="content"><p class="objective" id="objectiveText">Start the mission. Reach the terminal, read the patrol file, and unlock the elevator.</p><div class="progress" id="progressBars"><span class="progress-item current"></span><span class="progress-item"></span><span class="progress-item"></span><span class="progress-item"></span><span class="progress-item"></span><span class="progress-item"></span></div><div class="progress-labels"><span>Lobby</span><span>Roof extraction</span></div>
+          <div style="margin-top:18px"><div class="section-title">Choose your shell</div><div class="shell-row"><button class="shell-btn active" id="linuxBtn" type="button">Linux · Bash</button><button class="shell-btn" id="windowsBtn" type="button">Windows · CMD</button></div></div>
+          <div class="terminal-callout"><div class="terminal-icon">$_</div><p><strong>Security terminal</strong><br>Move next to the green terminal tile and press <kbd>E</kbd>. Use real shell basics to inspect files; special security commands are fictional game commands.</p></div>
+          <div class="cmd-examples"><code class="cmd-chip" id="listExample">ls</code><code class="cmd-chip" id="readExample">cat patrol.txt</code><code class="cmd-chip">help</code></div>
+          <div style="display:flex;gap:8px;margin-top:14px"><button class="btn primary" id="openTerminalBtn" type="button" style="flex:1">Open terminal · E</button><button class="btn" id="helpBtn" type="button">How to play</button></div>
+        </div>
+      </section>
+      <section class="panel"><div class="panel-head"><div><div class="panel-kicker">Recent activity</div><div class="panel-title">Mission feed</div></div><button class="btn small" id="clearLogBtn" type="button">Clear</button></div><div class="content"><div class="event-log" id="eventLog" aria-live="polite"><div class="event"><span class="event-dot"></span><div><span class="event-time">SYSTEM</span> Mission brief ready. Choose a shell and start.</div></div></div></div></section>
+      <section class="panel"><div class="panel-head"><div><div class="panel-kicker">Quick reference</div><div class="panel-title">Controls</div></div></div><div class="content"><div class="controls"><div class="control-key"><kbd>W</kbd><kbd>↑</kbd><span>Move up</span></div><div class="control-key"><kbd>S</kbd><kbd>↓</kbd><span>Move down</span></div><div class="control-key"><kbd>A</kbd><kbd>←</kbd><span>Move left</span></div><div class="control-key"><kbd>D</kbd><kbd>→</kbd><span>Move right</span></div><div class="control-key"><kbd>E</kbd><span>Interact / terminal</span></div><div class="control-key"><kbd>Esc</kbd><span>Close terminal</span></div><div class="control-key"><kbd>Click</kbd><span>Plot a route</span></div></div><p class="footer-note">The terminal is a safe simulation inside this game. It does not run commands on your computer. Getting caught by a guard, dog, or active camera ends the mission.</p></div></section>
+    </aside>
+  </main>
+  <p class="footer-note">Portfolio project · HTML, CSS and JavaScript · No server or external libraries required. The game runs entirely in your browser and can be hosted on GitHub Pages.</p>
+</div>
+
+<div class="overlay show" id="startOverlay" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+  <div class="dialog"><div class="dialog-top"><div class="eyebrow">Mission WR–05 / Briefing</div><h2 id="startTitle">Your wife has been taken.</h2><p>The mafia boss is moving her to the roof for helicopter extraction. You have <strong style="color:var(--gold)">30 minutes</strong> to cross five floors, reach her, and escape together. The building's security repeats predictable patterns—but one mistake ends the mission.</p></div><div class="dialog-body"><div class="storyline"><div class="story-card"><b>01 · Observe</b><span>Read patrol and camera files. Blue dots reveal patrol routes once inspected.</span></div><div class="story-card"><b>02 · Command</b><span>Use Bash or Windows CMD to inspect files, then enter fictional console commands.</span></div><div class="story-card"><b>03 · Extract</b><span>Unlock each exit, rescue your wife on Floor 5, then reach the rooftop helicopter.</span></div></div><div class="section-title">Choose a command line</div><div class="shell-row" style="margin-bottom:15px"><button class="shell-btn active" id="startLinuxBtn" type="button">Linux · Bash</button><button class="shell-btn" id="startWindowsBtn" type="button">Windows · CMD</button></div><p style="font-size:11px;margin-bottom:17px">Linux examples: <code class="cmd-chip">ls</code> and <code class="cmd-chip">cat patrol.txt</code>. Windows CMD examples: <code class="cmd-chip">dir</code> and <code class="cmd-chip">type patrol.txt</code>.</p><button class="btn primary" id="startBtn" type="button" style="width:100%;padding:13px">Start mission →</button></div></div>
+</div>
+
+<div class="overlay" id="terminalOverlay" role="dialog" aria-modal="true" aria-labelledby="terminalTitle">
+  <div class="dialog terminal-dialog"><div class="terminal-bar"><div class="terminal-brand"><span class="terminal-leds"><i></i><i></i><i></i></span><span id="terminalTitle">SECURITY TERMINAL</span></div><button class="btn small" id="closeTerminalBtn" type="button">Close · Esc</button></div><div class="terminal-content"><div class="terminal-caption" id="terminalCaption">SIMULATED SHELL · COMMANDS RUN ONLY INSIDE THIS GAME</div><div id="terminalOutput" role="log" aria-live="polite"></div><form class="terminal-form" id="terminalForm"><span class="prompt" id="terminalPrompt">$</span><input id="terminalInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type help and press Enter" aria-label="Terminal command"><button class="btn primary" type="submit">Run ↵</button></form><div class="term-help"><span>Try <code>help</code>, then <code>ls</code> / <code>dir</code>.</span><span>Commands are simulated—your device is untouched.</span></div></div></div>
+</div>
+
+<div class="overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="dialog"><div class="dialog-top"><div class="eyebrow">Field guide</div><h2 id="helpTitle">How to play</h2><p>You're navigating a fictional security building. Think first; then move.</p></div><div class="dialog-body"><p><strong style="color:var(--cyan)">1. Inspect the terminal.</strong> Press E next to the green terminal. Run <code class="cmd-chip">help</code>, then <code class="cmd-chip" id="helpListCmd">ls</code> and <code class="cmd-chip" id="helpFileCmd">cat patrol.txt</code>. Windows CMD uses <code class="cmd-chip">dir</code> and <code class="cmd-chip">type patrol.txt</code>.</p><p><strong style="color:var(--cyan)">2. Plan your route.</strong> Guards and dogs repeat their patrol paths. Blue dots appear after reading <code class="cmd-chip">patrol.txt</code>. Camera cones are shown in red. Enter <code class="cmd-chip">disable cam1</code> (use the IDs listed in cameras.txt) to disable one camera.</p><p><strong style="color:var(--cyan)">3. Progress carefully.</strong> Read <code class="cmd-chip">mission.txt</code> to find the fictional mission command. Use <code class="cmd-chip">unlock lift</code> on Floors 1–4, then stand on the gold exit tile and press E. On Floor 5, rescue your wife first, then use <code class="cmd-chip">unlock roof</code>. At the roof, reach the helicopter and press E.</p><p><strong style="color:var(--gold)">Important:</strong> The 30-minute clock keeps running while the terminal is open. Guards pause while you type. A collision with a guard, dog, or active camera beam ends the run. Restart at any time to try a new strategy.</p><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button class="btn primary" id="closeHelpBtn" type="button">Got it</button></div></div></div></div>
+
+<div class="overlay" id="endingOverlay" role="dialog" aria-modal="true" aria-labelledby="endingTitle"><div class="dialog ending-dialog"><div class="dialog-body"><div class="ending-icon" id="endingIcon">✓</div><div class="eyebrow" id="endingEyebrow">MISSION COMPLETE</div><h2 id="endingTitle">You made it.</h2><p id="endingText">You reached the helicopter and escaped together.</p><p id="endingStats" style="font-size:11px;color:#8096b4"></p><button class="btn primary" id="playAgainBtn" type="button">Play again ↻</button></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const W = 21, H = 13, TILE = 30, TOTAL_MS = 30 * 60 * 1000;
+  const $ = id => document.getElementById(id);
+  const canvas = $('gameCanvas'), ctx = canvas.getContext('2d');
+  const DIRS = [{x:0,y:-1,k:'up',name:'north'},{x:1,y:0,k:'right',name:'east'},{x:0,y:1,k:'down',name:'south'},{x:-1,y:0,k:'left',name:'west'}];
+  const FLOOR_NAMES = ['Lobby','Security wing','Kennel corridor','Inner checkpoint','Holding floor'];
+  const LEVELS = [
+    {guards:1,dogs:0,cameras:2,title:'Lobby'},
+    {guards:3,dogs:0,cameras:2,title:'Security wing'},
+    {guards:2,dogs:4,cameras:4,title:'Kennel corridor'},
+    {guards:3,dogs:3,cameras:3,title:'Inner checkpoint'},
+    {guards:4,dogs:0,cameras:4,title:'Holding floor'}
+  ];
+  let shell = 'linux', started = false, ended = false, floorNo = 1, floor = null;
+  let remainingMs = TOTAL_MS, lastClock = 0, lastMove = 0, lastHazards = 0, totalFloors = 0, wifeRescued = false, currentDir = '', outcome = null, lastTerminalFloor = 0;
+  let keys = new Set(), clickPath = [], terminalOpen = false, patrolsVisible = false, eventCount = 0, toastTimer = null;
+
+  function seeded(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function shuffle(a, rand){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  const key = p => `${p.x},${p.y}`;
+  const same = (a,b) => !!a && !!b && a.x===b.x && a.y===b.y;
+  function inBounds(p){ return p.x>=0 && p.x<W && p.y>=0 && p.y<H; }
+  function passable(p, grid=floor?.grid){ return !!grid && inBounds(p) && grid[p.y][p.x] === '.'; }
+  function neighbor(p, d){ return {x:p.x+d.x,y:p.y+d.y}; }
+  function makeMaze(seed){
+    const rand=seeded(seed), grid=Array.from({length:H},()=>Array(W).fill('#'));
+    const start={x:1,y:1}, stack=[start]; grid[1][1]='.';
+    while(stack.length){
+      const cur=stack[stack.length-1];
+      const choices=shuffle([{x:0,y:-2},{x:2,y:0},{x:0,y:2},{x:-2,y:0}],rand).filter(d=>{
+        const n={x:cur.x+d.x,y:cur.y+d.y}; return n.x>0&&n.x<W-1&&n.y>0&&n.y<H-1&&grid[n.y][n.x]==='#';
+      });
+      if(!choices.length){stack.pop();continue;}
+      const d=choices[0], n={x:cur.x+d.x,y:cur.y+d.y}; grid[cur.y+d.y/2][cur.x+d.x/2]='.'; grid[n.y][n.x]='.'; stack.push(n);
+    }
+    // A few additional openings create meaningful alternate routes rather than a single perfect maze.
+    let walls=[];
+    for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++) if(grid[y][x]==='#'){
+      const horiz=grid[y][x-1]==='.'&&grid[y][x+1]==='.';
+      const vert=grid[y-1][x]==='.'&&grid[y+1][x]==='.';
+      if(horiz||vert) walls.push({x,y});
+    }
+    shuffle(walls,rand).slice(0,5+Math.min(floorNo,4)).forEach(p=>grid[p.y][p.x]='.');
+    return {grid,rand};
+  }
+  function bfsPath(from,to,blocked=new Set(),grid=floor?.grid){
+    if(!grid||!from||!to)return [];
+    const q=[from], prev=new Map([[key(from),null]]);
+    while(q.length){const cur=q.shift(); if(same(cur,to)) break;
+      for(const d of DIRS){const n=neighbor(cur,d), nk=key(n);
+        if(!inBounds(n)||grid[n.y][n.x]!=='.'||(blocked.has(nk)&&!same(n,to))||prev.has(nk))continue;
+        prev.set(nk,key(cur)); q.push(n);
+      }
+    }
+    if(!prev.has(key(to)))return [];
+    const out=[]; let curKey=key(to);
+    while(curKey){const [x,y]=curKey.split(',').map(Number);out.push({x,y});curKey=prev.get(curKey);}
+    return out.reverse();
+  }
+  function allPassable(grid){const out=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(grid[y][x]==='.')out.push({x,y});return out;}
+  function graphDistances(start,grid,blocked=new Set()){
+    const dist=new Map([[key(start),0]]),q=[start];
+    while(q.length){const cur=q.shift();for(const d of DIRS){const n=neighbor(cur,d),nk=key(n);if(!inBounds(n)||grid[n.y][n.x]!=='.'||blocked.has(nk)||dist.has(nk))continue;dist.set(nk,dist.get(key(cur))+1);q.push(n);}}
+    return dist;
+  }
+  function makeFloor(n){
+    const level = n<=5 ? LEVELS[n-1] : {guards:0,dogs:0,cameras:0,title:'Rooftop'};
+    const {grid,rand}=makeMaze(9137+n*1171);
+    const player={x:1,y:1}, exit={x:W-2,y:H-2};
+    // The entry terminal is always one step from the starting tile.
+    const entryNeighbors=DIRS.map(d=>neighbor(player,d)).filter(p=>inBounds(p)&&grid[p.y][p.x]==='.');
+    const terminal=entryNeighbors[0]||{x:1,y:1};
+    let wife=null;
+    const candidateCells=allPassable(grid);
+    if(n===5){
+      const dist=graphDistances(player,grid);
+      const choices=candidateCells.filter(p=>!same(p,player)&&!same(p,terminal)&&!same(p,exit)&&dist.get(key(p))>10);
+      choices.sort((a,b)=>(dist.get(key(b))||0)-(dist.get(key(a))||0));
+      wife=choices[Math.min(2,Math.max(0,choices.length-1))] || {x:W-3,y:H-2};
+    }
+    const reserved=new Set([key(player),key(terminal),key(exit)]);if(wife)reserved.add(key(wife));
+    const cameras=[];
+    const camCandidates=shuffle(candidateCells.filter(p=>!reserved.has(key(p))&&Math.abs(p.x-player.x)+Math.abs(p.y-player.y)>5&&Math.abs(p.x-terminal.x)+Math.abs(p.y-terminal.y)>3&&Math.abs(p.x-exit.x)+Math.abs(p.y-exit.y)>2&&(!wife||Math.abs(p.x-wife.x)+Math.abs(p.y-wife.y)>2)),rand);
+    for(const p of camCandidates){if(cameras.length>=level.cameras)break;if(cameras.some(c=>Math.abs(c.x-p.x)+Math.abs(c.y-p.y)<3))continue;
+      const ds=shuffle(DIRS.filter(d=>{const q=neighbor(p,d);return inBounds(q)&&grid[q.y][q.x]==='.';}),rand);if(!ds.length)continue;
+      const d=ds[0];cameras.push({id:`cam${cameras.length+1}`,x:p.x,y:p.y,dir:d,disabled:false,beam:[]});reserved.add(key(p));
+    }
+    cameras.forEach(c=>{let p={x:c.x,y:c.y};for(let i=0;i<5;i++){p=neighbor(p,c.dir);if(!inBounds(p)||grid[p.y][p.x]!=='.')break;c.beam.push(p);}});
+    const hazards=[];
+    function addPatrollers(type,count){
+      let attempts=0;
+      while(hazards.filter(h=>h.type===type).length<count&&attempts<400){attempts++;
+        const already=new Set([...reserved,...hazards.map(h=>key(h.pos))]);
+        const eligible=candidateCells.filter(p=>!already.has(key(p))&&Math.abs(p.x-player.x)+Math.abs(p.y-player.y)>5&&Math.abs(p.x-terminal.x)+Math.abs(p.y-terminal.y)>3&&Math.abs(p.x-exit.x)+Math.abs(p.y-exit.y)>2&&(!wife||Math.abs(p.x-wife.x)+Math.abs(p.y-wife.y)>2));
+        if(!eligible.length)break;
+        const a=eligible[Math.floor(rand()*eligible.length)];
+        const block=new Set([...reserved,...hazards.map(h=>key(h.pos)),...cameras.map(c=>key(c))]);block.delete(key(a));
+        const dist=graphDistances(a,grid,block);
+        let endpoints=eligible.filter(p=>!same(a,p)&&!block.has(key(p))&&(dist.get(key(p))||0)>=4&&(dist.get(key(p))||999)<=11);
+        if(!endpoints.length)endpoints=eligible.filter(p=>!same(a,p)&&!block.has(key(p))&&(dist.get(key(p))||0)>=3);
+        if(!endpoints.length)continue;
+        const b=endpoints[Math.floor(rand()*endpoints.length)], path=bfsPath(a,b,block,grid);
+        if(path.length<3)continue;
+        const route=path.concat(path.slice(1,-1).reverse());
+        hazards.push({id:`${type==='guard'?'G':'D'}${hazards.filter(h=>h.type===type).length+1}`,type,pos:{...route[0]},route,index:0,nextMove:performance.now()+600+Math.floor(rand()*400),pace:type==='guard'?Math.max(510,920-n*60):Math.max(470,760-n*30)});
+        reserved.add(key(a));
+      }
+    }
+    addPatrollers('guard',level.guards);addPatrollers('dog',level.dogs);
+    return {n,title:level.title,grid,player,terminal: n<=5?terminal:null,exit,wife,cameras,hazards,exitUnlocked:false,patrolsVisible:false,level};
+  }
+  function makeRoof(){
+    const {grid}=makeMaze(424242);
+    const player={x:1,y:1}, helicopter={x:W-2,y:H-2};
+    return {n:6,title:'Rooftop',grid,player,terminal:null,exit:null,wife:null,helicopter,cameras:[],hazards:[],exitUnlocked:true,patrolsVisible:false,level:{guards:0,dogs:0,cameras:0}};
+  }
+  function createFloor(n){floorNo=n;floor=n<=5?makeFloor(n):makeRoof();patrolsVisible=false;floor.patrolsVisible=false;currentDir='security';terminalOpen=false;keys.clear();clickPath=[];renderAll();}
+  function addEvent(text,type=''){const log=$('eventLog');const item=document.createElement('div');item.className='event '+type;const dot=document.createElement('span');dot.className='event-dot';const body=document.createElement('div');const time=document.createElement('span');time.className='event-time';time.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});body.append(time,document.createTextNode(' '+text));item.append(dot,body);log.prepend(item);eventCount++;while(log.children.length>8)log.removeChild(log.lastChild);}
+  function toast(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
+  function setShell(which){shell=which;const win=which==='windows';$('linuxBtn').classList.toggle('active',!win);$('windowsBtn').classList.toggle('active',win);$('startLinuxBtn').classList.toggle('active',!win);$('startWindowsBtn').classList.toggle('active',win);$('shellTop').textContent=win?'Windows CMD':'Linux Bash';$('listExample').textContent=win?'dir':'ls';$('readExample').textContent=win?'type patrol.txt':'cat patrol.txt';$('helpListCmd').textContent=win?'dir':'ls';$('helpFileCmd').textContent=win?'type patrol.txt':'cat patrol.txt';$('terminalPrompt').textContent=win?'C>':'$';}
+  function formatTime(ms){const sec=Math.max(0,Math.ceil(ms/1000));return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;}
+  function floorLabel(){return floorNo<=5?`Floor ${floorNo}`:'Rooftop';}
+  function renderAll(){renderStatus();draw();}
+  function renderStatus(){
+    $('timer').textContent=formatTime(remainingMs);$('timerDot').classList.toggle('hot',remainingMs<5*60*1000);
+    $('floorValue').textContent=floorLabel();$('zoneValue').textContent=`/ ${floor.title}`;
+    const active=floor.cameras.filter(c=>!c.disabled).length;$('cameraValue').textContent=String(active);$('cameraSub').textContent=active===1?'active':active===0?'disabled':'active';
+    $('missionStatus').textContent=ended?(outcome?'Escaped':'Failed'):!started?'Not started':floorNo===6?'Extraction ready':wifeRescued?'Wife rescued':floor.exitUnlocked?'Exit unlocked':'Infiltrating';
+    $('mapTitle').textContent=floorNo===6?'ROOFTOP / EXTRACTION':`FLOOR ${floorNo} / ${floor.title.toUpperCase()}`;$('mapBadge').textContent=floorNo===6?'ROOF':`LEVEL ${String(floorNo).padStart(2,'0')}`;
+    const bars=[...$('progressBars').children];bars.forEach((b,i)=>{b.className='progress-item';if(i<Math.min(totalFloors,5))b.classList.add('done');if(started&&!ended&&i===Math.min(floorNo-1,5))b.classList.add('current');if(floorNo===6&&i===5)b.classList.add('done');});
+    $('objectiveBadge').textContent=ended?'ENDED':floorNo===6?'EXTRACT':floor.exitUnlocked?'MOVE OUT':'ACTIVE';
+    let obj='';
+    if(!started)obj='Start the mission. Reach the terminal, read the patrol file, and unlock the elevator.';
+    else if(floorNo<=4)obj=`Find the terminal. Read <strong>${shell==='windows'?'type patrol.txt':'cat patrol.txt'}</strong> to reveal repeat routes, disable camera IDs from <strong>cameras.txt</strong>, then use <strong>unlock lift</strong>. Reach the gold exit and press E.`;
+    else if(floorNo===5&&!wifeRescued)obj=`This is the holding floor. Read the patrol file, avoid ${floor.hazards.filter(h=>h.type==='guard').length} guards and ${floor.cameras.length} cameras, then stand on the <strong>WIFE</strong> marker and press E. Unlock the roof after the rescue.`;
+    else if(floorNo===5&&wifeRescued&&!floor.exitUnlocked)obj='You found her. Keep moving together: enter <strong>unlock roof</strong> in the terminal, then reach the gold roof exit and press E.';
+    else if(floorNo===5&&wifeRescued)obj='Your wife is with you. The roof door is unlocked—reach the gold exit and press E to reach the helicopter.';
+    else if(floorNo===6)obj='Final leg: cross the rooftop, reach the helicopter marker, and press E to escape together.';
+    $('objectiveText').innerHTML=obj;
+    $('openTerminalBtn').disabled=!started||ended||!floor.terminal;
+    $('openTerminalBtn').textContent=terminalOpen?'Terminal is open':'Open terminal · E';
+    $('coordReadout').textContent=started?`COL ${String(floor.player.x+1).padStart(2,'0')} · ROW ${String(floor.player.y+1).padStart(2,'0')}`:'Grid ready';
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const xx=x*TILE, yy=y*TILE, wall=floor.grid[y][x]==='#';
+      if(wall){ctx.fillStyle='#17253a';ctx.fillRect(xx,yy,TILE,TILE);ctx.fillStyle='#202f45';ctx.fillRect(xx+2,yy+2,TILE-4,TILE-4);ctx.fillStyle='#26384e';ctx.fillRect(xx+4,yy+4,TILE-8,2);}
+      else {ctx.fillStyle=((x+y)%2===0)?'#172b37':'#152733';ctx.fillRect(xx,yy,TILE,TILE);ctx.strokeStyle='#223746';ctx.lineWidth=.7;ctx.strokeRect(xx+.5,yy+.5,TILE-1,TILE-1);}
+    }
+    // Camera fields are shown before the actors; disabled cameras leave the layout visible but no threat.
+    for(const c of floor.cameras){if(!c.disabled){for(let i=0;i<c.beam.length;i++){const p=c.beam[i];ctx.fillStyle=`rgba(255,78,105,${.10+(i===0?.10:0)})`;ctx.fillRect(p.x*TILE+2,p.y*TILE+2,TILE-4,TILE-4);}}
+      ctx.fillStyle=c.disabled?'#45675d':'#652e43';ctx.fillRect(c.x*TILE+7,c.y*TILE+7,TILE-14,TILE-14);ctx.strokeStyle=c.disabled?'#9df3a8':'#ff7187';ctx.lineWidth=2;ctx.strokeRect(c.x*TILE+7,c.y*TILE+7,TILE-14,TILE-14);ctx.fillStyle=c.disabled?'#9df3a8':'#ffdbe2';ctx.font='bold 10px ui-monospace,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(c.disabled?'×':'C',c.x*TILE+TILE/2,c.y*TILE+TILE/2+0.5);
+      if(!c.disabled){const v={x:c.dir.x,y:c.dir.y};ctx.strokeStyle='#ff7187';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x*TILE+TILE/2,c.y*TILE+TILE/2);ctx.lineTo(c.x*TILE+TILE/2+v.x*7,c.y*TILE+TILE/2+v.y*7);ctx.stroke();}
+    }
+    if(floor.patrolsVisible||patrolsVisible){for(const h of floor.hazards){for(const p of h.route){ctx.fillStyle=h.type==='guard'?'rgba(255,100,124,.55)':'rgba(255,174,104,.62)';ctx.beginPath();ctx.arc(p.x*TILE+TILE/2,p.y*TILE+TILE/2,3.1,0,Math.PI*2);ctx.fill();}}}
+    if(floor.terminal)drawMarker(floor.terminal,'T','#183e37','#8ff0bf');
+    if(floor.exit){drawMarker(floor.exit,floorNo===5?'R':'E','#4c3d1e','#ffd56a');if(!floor.exitUnlocked){ctx.strokeStyle='#92733a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(floor.exit.x*TILE+10,floor.exit.y*TILE+10);ctx.lineTo(floor.exit.x*TILE+20,floor.exit.y*TILE+20);ctx.moveTo(floor.exit.x*TILE+20,floor.exit.y*TILE+10);ctx.lineTo(floor.exit.x*TILE+10,floor.exit.y*TILE+20);ctx.stroke();}}
+    if(floor.wife&&!wifeRescued)drawMarker(floor.wife,'W','#512947','#ff9fd4');
+    if(floor.helicopter)drawMarker(floor.helicopter,'H','#1e4251','#75e5ff');
+    for(const h of floor.hazards){const cx=h.pos.x*TILE+TILE/2,cy=h.pos.y*TILE+TILE/2;ctx.fillStyle=h.type==='guard'?'#6e283e':'#633d24';ctx.beginPath();ctx.arc(cx,cy,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle=h.type==='guard'?'#ff7087':'#ffb36c';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff2f4';ctx.font='bold 10px ui-monospace,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.type==='guard'?'G':'D',cx,cy+.5);}
+    // Player marker and small facing/position glow.
+    const p=floor.player, px=p.x*TILE+TILE/2, py=p.y*TILE+TILE/2;const glow=ctx.createRadialGradient(px,py,3,px,py,18);glow.addColorStop(0,'rgba(168,155,255,.35)');glow.addColorStop(1,'rgba(168,155,255,0)');ctx.fillStyle=glow;ctx.fillRect(px-19,py-19,38,38);ctx.fillStyle='#4c4387';ctx.beginPath();ctx.arc(px,py,10.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#c6bdff';ctx.lineWidth=2.2;ctx.stroke();ctx.fillStyle='#f5f2ff';ctx.beginPath();ctx.arc(px,py-1,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#a89bff';ctx.fillRect(px-3,py+4,6,4);
+  }
+  function drawMarker(p,label,bg,fg){const x=p.x*TILE,y=p.y*TILE;ctx.fillStyle=bg;ctx.fillRect(x+4,y+4,TILE-8,TILE-8);ctx.strokeStyle=fg;ctx.lineWidth=1.7;ctx.strokeRect(x+4.8,y+4.8,TILE-9.6,TILE-9.6);ctx.fillStyle=fg;ctx.font='bold 13px ui-monospace,SFMono-Regular,Consolas,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,x+TILE/2,y+TILE/2+.5);}
+  function distance(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y);}
+  function isCaught(){
+    for(const h of floor.hazards)if(same(floor.player,h.pos))return h.type==='guard'?'A guard caught you. The mission is over.':'A trained dog found your trail. The mission is over.';
+    for(const c of floor.cameras)if(!c.disabled&&c.beam.some(p=>same(p,floor.player)))return `You entered ${c.id}'s active camera cone. The alarm was raised; mission failed.`;
+    return '';
+  }
+  function movePlayer(dx,dy){if(!started||ended||terminalOpen)return;const next={x:floor.player.x+dx,y:floor.player.y+dy};if(!passable(next))return;floor.player=next;const caught=isCaught();if(caught){draw();renderStatus();endGame(false,caught);return;}draw();renderStatus();
+    if(floor.terminal&&distance(floor.player,floor.terminal)<=1){};
+    if(floor.wife&&!wifeRescued&&same(floor.player,floor.wife)){addEvent('You found the holding room. Press E to rescue your wife.','warn');toast('You found your wife — press E to rescue her.');}
+    if(floor.exit&&same(floor.player,floor.exit)&&!floor.exitUnlocked){toast('Exit locked. Inspect the terminal and enter the unlock command.');}
+    if(floor.terminal&&same(floor.player,floor.terminal))toast('Terminal reached — press E to open it.');
+    if(floor.helicopter&&same(floor.player,floor.helicopter))toast('Helicopter reached — press E to escape.');
+  }
+  function interact(){
+    if(!started||ended)return;
+    if(terminalOpen){closeTerminal();return;}
+    if(floor.terminal&&distance(floor.player,floor.terminal)<=1){openTerminal();return;}
+    if(floorNo<=5&&floor.exit&&same(floor.player,floor.exit)){
+      if(!floor.exitUnlocked){toast('The exit is locked. Enter the mission unlock command.');return;}
+      if(floorNo===5&&!wifeRescued){toast('Rescue your wife before leaving this floor.');return;}
+      if(floorNo<5){totalFloors=Math.max(totalFloors,floorNo);addEvent(`Elevator unlocked. Moving to Floor ${floorNo+1}.`);createFloor(floorNo+1);addEvent(`Floor ${floorNo}: ${floor.title}. New security pattern loaded.`,'warn');renderStatus();toast(`Reached Floor ${floorNo}: ${floor.title}`);return;}
+      totalFloors=5;createFloor(6);addEvent('Roof access granted. Reach the helicopter to complete the mission.','warn');toast('Final stage: get to the helicopter.');return;
+    }
+    if(floorNo===5&&floor.wife&&!wifeRescued&&same(floor.player,floor.wife)){
+      wifeRescued=true;floor.wife=null;addEvent('You rescued your wife. Now unlock the roof and escape.','warn');toast('Wife rescued — now get to the roof!');renderAll();return;
+    }
+    if(floorNo===6&&floor.helicopter&&same(floor.player,floor.helicopter)){endGame(true,'You boarded the helicopter and escaped together. Mission complete.');return;}
+    toast('Nothing to interact with here. Move to a terminal, exit, wife, or helicopter marker.');
+  }
+  function tick(now){
+    if(!started||ended)return;
+    const delta=Math.max(0,now-lastClock);lastClock=now;remainingMs=Math.max(0,remainingMs-delta);
+    if(remainingMs<=0){renderStatus();endGame(false,'Time ran out. The helicopter left with your wife. Mission failed.');return;}
+    if(!terminalOpen&&now-lastHazards>145){
+      lastHazards=now;let changed=false;
+      for(const h of floor.hazards){if(now>=h.nextMove){const old={...h.pos};h.index=(h.index+1)%h.route.length;h.pos={...h.route[h.index]};h.nextMove=now+h.pace;changed=true;if(same(h.pos,floor.player)||same(old,floor.player)){draw();endGame(false,h.type==='guard'?'A guard intercepted you on patrol. Mission failed.':'A trained dog intercepted you. Mission failed.');return;}}}
+      if(changed){const caught=isCaught();if(caught){draw();endGame(false,caught);return;}draw();}
+    }
+    if(!terminalOpen&&now-lastMove>142){
+      let target=null;
+      if(keys.has('ArrowUp')||keys.has('w')){target={x:floor.player.x,y:floor.player.y-1};clickPath=[];}
+      else if(keys.has('ArrowDown')||keys.has('s')){target={x:floor.player.x,y:floor.player.y+1};clickPath=[];}
+      else if(keys.has('ArrowLeft')||keys.has('a')){target={x:floor.player.x-1,y:floor.player.y};clickPath=[];}
+      else if(keys.has('ArrowRight')||keys.has('d')){target={x:floor.player.x+1,y:floor.player.y};clickPath=[];}
+      else if(clickPath.length)target=clickPath[0];
+      if(target){lastMove=now;const before={...floor.player};movePlayer(target.x-before.x,target.y-before.y);if(same(floor.player,target)&&clickPath.length&&same(clickPath[0],target))clickPath.shift();}
+    }
+    $('timer').textContent=formatTime(remainingMs);$('timerDot').classList.toggle('hot',remainingMs<5*60*1000);
+  }
+  function endGame(won,message){if(ended)return;ended=true;outcome=won;started=false;terminalOpen=false;keys.clear();$('terminalOverlay').classList.remove('show');$('endingOverlay').classList.add('show');$('endingIcon').textContent=won?'✓':'×';$('endingIcon').style.color=won?'var(--green)':'var(--red)';$('endingIcon').style.borderColor=won?'#34756a':'#763b50';$('endingIcon').style.background=won?'#133a36':'#351a2a';$('endingEyebrow').textContent=won?'MISSION COMPLETE':'MISSION FAILED';$('endingTitle').textContent=won?'You made it out.':'Mission compromised.';$('endingText').textContent=message;$('endingStats').textContent=`Floors reached: ${Math.min(5,totalFloors|| (floorNo>5?5:floorNo-1))}/5 · Time remaining: ${formatTime(remainingMs)}`;$('missionStatus').textContent=won?'Escaped':'Failed';addEvent(won?'Successful extraction. You completed the mission.':message,'danger');renderStatus();}
+  function restart(){started=false;ended=false;outcome=null;terminalOpen=false;wifeRescued=false;lastTerminalFloor=0;remainingMs=TOTAL_MS;lastClock=performance.now();lastMove=0;lastHazards=0;totalFloors=0;eventCount=0;keys.clear();$('eventLog').innerHTML='';$('endingOverlay').classList.remove('show');$('terminalOverlay').classList.remove('show');$('helpOverlay').classList.remove('show');$('startOverlay').classList.add('show');createFloor(1);addEvent('Mission brief ready. Choose a shell and start.');renderStatus();}
+  function startGame(){started=true;ended=false;lastClock=performance.now();lastMove=0;lastHazards=performance.now();$('startOverlay').classList.remove('show');createFloor(1);addEvent('Mission started. 30:00 on the clock.','warn');addEvent('Tip: use help, then inspect patrol.txt and cameras.txt.');renderStatus();toast('Mission started. Find the terminal beside the entry.');}
+  function showOverlay(id){$(id).classList.add('show');}
+  function closeTerminal(){terminalOpen=false;$('terminalOverlay').classList.remove('show');keys.clear();clickPath=[];renderStatus();}
+  function openTerminal(){if(!started||ended||!floor.terminal)return;terminalOpen=true;keys.clear();clickPath=[];$('terminalOverlay').classList.add('show');$('terminalTitle').textContent=`SECURITY TERMINAL · FLOOR ${floorNo}`;$('terminalCaption').textContent=`SIMULATED ${shell==='windows'?'WINDOWS CMD':'LINUX BASH'} · COMMANDS RUN ONLY INSIDE THIS GAME`;$('terminalInput').placeholder='Type help and press Enter';if(lastTerminalFloor!==floorNo||!$('terminalOutput').children.length){clearTerminal();termLine('Connected to the building security console.','notice');termLine('This is a simulation. Type help to see available commands.','dim');lastTerminalFloor=floorNo;}setShell(shell);$('terminalCaption').textContent=`SIMULATED ${shell==='windows'?'WINDOWS CMD':'LINUX BASH'} · COMMANDS RUN ONLY INSIDE THIS GAME`;$('terminalInput').focus();renderStatus();}
+  function termLine(text,type=''){const out=$('terminalOutput'),p=document.createElement('div');p.className='term-line '+type;p.textContent=text;out.appendChild(p);out.scrollTop=out.scrollHeight;}
+  function clearTerminal(){ $('terminalOutput').replaceChildren(); }
+  function listFiles(){if(currentDir==='security')return 'mission.txt   patrol.txt   cameras.txt   status.txt';return 'security/';}
+  function rootPath(){return shell==='windows'?`C:\\MafiaBuilding\\Floor-${floorNo}`:`/building/floor-${floorNo}`;}
+  function currentPath(){return shell==='windows'?rootPath()+(currentDir==='security'?'\\Security':''):rootPath()+(currentDir==='security'?'/security':'');}
+  function missionText(){
+    if(floorNo<=4)return `OBJECTIVE: Reach the elevator on Floor ${floorNo}.\n1) Read patrol.txt and cameras.txt to plan a route.\n2) Disable cameras with: disable cam1 (use the IDs in cameras.txt).\n3) Unlock the elevator with: unlock lift\n4) Move to the gold E tile and press E.\n\n"disable" and "unlock" are fictional commands for this game's security console, not real OS commands.`;
+    if(floorNo===5)return `FINAL FLOOR: Your wife is held somewhere on this map.\n1) Inspect patrols and camera beams.\n2) Stand on W and press E to rescue her.\n3) Enter: unlock roof\n4) Reach the gold R tile and press E.\n\n"unlock roof" is a fictional mission command built for this game.`;
+    return 'ROOFTOP: Reach the helicopter (H) and press E. No terminal commands are needed.';
+  }
+  function patrolText(){floor.patrolsVisible=true;patrolsVisible=true;draw();if(!floor.hazards.length)return 'No moving patrols detected on this level.\nBlue route markers have been enabled on the map.';
+    const guards=floor.hazards.filter(h=>h.type==='guard').length,dogs=floor.hazards.filter(h=>h.type==='dog').length;
+    return `PATROL LOG — FLOOR ${floorNo}\n${guards} guard(s), ${dogs} trained dog(s) detected.\nRoutes repeat in a loop; each unit pauses briefly between tiles.\nBlue/red-orange dots now trace each route on the map. Watch a full cycle before crossing.\n${floor.hazards.map(h=>`${h.id}: ${h.type==='guard'?'guard':'dog'} route · ${h.route.length} steps per loop · current tile ${h.pos.x+1},${h.pos.y+1}`).join('\n')}`;
+  }
+  function cameraText(){return `CAMERA REGISTER — FLOOR ${floorNo}\n${floor.cameras.length?floor.cameras.map(c=>`${c.id}: faces ${c.dir.name.toUpperCase()} · ${c.disabled?'DISABLED':'ACTIVE'}`).join('\n'):'No cameras registered.'}\n\nRed translucent tiles show each active camera's line of sight. Disable an individual unit using its ID, e.g. disable cam1. Keep clear of active beams.`;}
+  function statusText(){return `FLOOR: ${floorLabel()}\nGUARDS: ${floor.hazards.filter(h=>h.type==='guard').length} · DOGS: ${floor.hazards.filter(h=>h.type==='dog').length}\nCAMERAS DISABLED: ${floor.cameras.filter(c=>c.disabled).length}/${floor.cameras.length}\nEXIT: ${floor.exitUnlocked?'UNLOCKED':'LOCKED'}\nWIFE: ${wifeRescued?'RESCUED':floorNo===5?'NOT RESCUED':'NOT REACHED'}\nTIME REMAINING: ${formatTime(remainingMs)}`;}
+  function executeCommand(raw){const trimmed=raw.trim();if(!trimmed)return;termLine((shell==='windows'?'C> ':'$ ')+trimmed,'input');const parts=trimmed.split(/\s+/),cmd=parts[0].toLowerCase(),arg=parts.slice(1).join(' ').toLowerCase();
+    const isWin=shell==='windows';
+    const isList=cmd===(isWin?'dir':'ls');
+    const isRead=cmd===(isWin?'type':'cat');
+    const isClear=cmd===(isWin?'cls':'clear');
+    if(cmd==='help'){
+      termLine('STANDARD SHELL COMMANDS','notice');termLine(isWin?'dir                  list files (Linux: ls)':'ls                   list files (Windows CMD: dir)');termLine(isWin?'type patrol.txt      print a text file (Linux: cat)':'cat patrol.txt       print a text file (Windows CMD: type)');termLine(isWin?'cd                   change directory · cls clears screen':'cd                   change directory · clear clears screen');termLine('pwd / whoami / help  inspect location, user, or command help');termLine('MISSION CONSOLE COMMANDS (fictional)','notice');termLine('disable cam1         disable one security camera by ID');termLine(floorNo===5?'unlock roof          unlock the exit to the rooftop':'unlock lift           unlock the elevator / next-floor exit');termLine('status               show current security status');termLine('Try mission.txt, patrol.txt, and cameras.txt.');
+    }else if(cmd==='whoami')termLine(isWin?'mafia-building\\field-agent':'field-agent');
+    else if(cmd==='pwd'){
+      if(isWin)termLine('The term "pwd" is not recognized in Windows CMD. Use cd with no arguments to show the current directory.','error');else termLine(currentPath());
+    }else if(isWin&&cmd==='cd'&&!arg)termLine(currentPath());
+    else if(cmd==='cd'){
+      if(arg==='..'||arg==='\\'||arg==='/')currentDir='root';else if(arg==='security'||arg==='security\\'||arg==='security/')currentDir='security';else if(arg==='.'){}else termLine(`The directory '${parts.slice(1).join(' ')}' does not exist in this simulation.`,'error');
+      if(arg==='..'||arg==='\\'||arg==='/'||arg==='security'||arg==='security\\'||arg==='security/'||arg==='.')termLine(currentPath());
+    }else if(isList){termLine(listFiles());}
+    else if(cmd==='ls'&&isWin)termLine("'ls' is not recognized in Windows CMD. Use 'dir' to list files.",'error');
+    else if(cmd==='dir'&&!isWin)termLine("dir: command not found in this Bash lesson. Use 'ls' to list files.",'error');
+    else if(isRead){
+      if(!arg){termLine(`Usage: ${isWin?'type':'cat'} filename`,'error');}
+      else if(currentDir!=='security')termLine(`Cannot read '${arg}' here. Use cd security to enter the security directory first.`,'error');
+      else if(arg==='mission.txt')missionText().split('\n').forEach((line,i)=>termLine(line,i===0?'notice':''));
+      else if(arg==='patrol.txt')patrolText().split('\n').forEach(line=>termLine(line));
+      else if(arg==='cameras.txt')cameraText().split('\n').forEach(line=>termLine(line));
+      else if(arg==='status.txt')statusText().split('\n').forEach(line=>termLine(line));
+      else termLine(`Cannot find file '${arg}'. Try ${isWin?'type':'cat'} mission.txt.`,'error');
+    }else if(cmd==='cat'&&isWin)termLine("'cat' is not recognized in Windows CMD. Use 'type' to display a file.",'error');
+    else if(cmd==='type'&&!isWin)termLine("type: command not found in Bash. Use 'cat' to display a file.",'error');
+    else if(isClear){clearTerminal();termLine('Screen cleared. Type help for the command reference.','dim');}
+    else if((cmd==='clear'&&isWin)||(cmd==='cls'&&!isWin))termLine(`Command '${cmd}' is not the selected shell's clear-screen command. Try ${isWin?'cls':'clear'}.`,'error');
+    else if(cmd==='disable'){
+      const id=arg.replace(/^camera-?/,'cam').replace(/^cam-?/,'cam');const camera=floor.cameras.find(c=>c.id===id);
+      if(!camera)termLine(`Unknown camera '${parts.slice(1).join(' ')}'. Read ${isWin?'type':'cat'} cameras.txt for valid IDs.`,'error');
+      else if(camera.disabled)termLine(`${camera.id} is already disabled.`,'dim');
+      else{camera.disabled=true;termLine(`${camera.id} disabled. Its red camera cone is now safe.`,'notice');addEvent(`${camera.id} disabled from the security terminal.`,'warn');draw();renderStatus();}
+    }else if(cmd==='unlock'){
+      if(floorNo<=4&&arg==='lift'){floor.exitUnlocked=true;termLine('ACCESS GRANTED: elevator unlocked. Reach the gold E tile and press E.','notice');addEvent(`Floor ${floorNo} elevator unlocked through terminal.`,'warn');draw();renderStatus();}
+      else if(floorNo===5&&arg==='roof'){floor.exitUnlocked=true;termLine('ACCESS GRANTED: roof access unlocked. Rescue your wife, then use the gold R tile.','notice');addEvent('Roof access unlocked.','warn');draw();renderStatus();}
+      else if(floorNo===6)termLine('No further access command needed. Reach the helicopter (H).','dim');
+      else termLine(`Invalid mission command for this floor. Read ${isWin?'type':'cat'} mission.txt.`,'error');
+    }else if(cmd==='status')statusText().split('\n').forEach(line=>termLine(line));
+    else if(cmd==='scan')termLine('Scan complete: inspect cameras.txt and patrol.txt for route intel. (Game-only command)','notice');
+    else termLine(`Command not found: ${cmd}. Type help to see supported commands.`,'error');
+  }
+  function submitTerminal(ev){ev.preventDefault();const input=$('terminalInput'),raw=input.value;input.value='';executeCommand(raw);input.focus();}
+
+  // UI hooks
+  $('startLinuxBtn').addEventListener('click',()=>setShell('linux'));$('startWindowsBtn').addEventListener('click',()=>setShell('windows'));
+  $('linuxBtn').addEventListener('click',()=>setShell('linux'));$('windowsBtn').addEventListener('click',()=>setShell('windows'));
+  $('startBtn').addEventListener('click',startGame);$('restartBtn').addEventListener('click',restart);$('playAgainBtn').addEventListener('click',restart);
+  $('openTerminalBtn').addEventListener('click',()=>{if(floor.terminal&&distance(floor.player,floor.terminal)<=1)openTerminal();else toast('Move next to the green terminal tile first.');});
+  $('closeTerminalBtn').addEventListener('click',closeTerminal);$('terminalForm').addEventListener('submit',submitTerminal);
+  $('helpBtn').addEventListener('click',()=>showOverlay('helpOverlay'));$('closeHelpBtn').addEventListener('click',()=>$('helpOverlay').classList.remove('show'));
+  $('clearLogBtn').addEventListener('click',()=>{$('eventLog').replaceChildren();addEvent('Mission feed cleared.');});
+  document.querySelectorAll('[data-move]').forEach(b=>{const k=b.dataset.move,code={up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'}[k],vec={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[k];b.addEventListener('pointerdown',e=>{e.preventDefault();if(started&&!ended&&!terminalOpen)movePlayer(vec[0],vec[1]);keys.add(code);});['pointerup','pointercancel','pointerleave'].forEach(type=>b.addEventListener(type,()=>keys.delete(code)));});
+  canvas.addEventListener('click',e=>{if(!started||ended||terminalOpen)return;const rect=canvas.getBoundingClientRect();const target={x:Math.floor((e.clientX-rect.left)*W/rect.width),y:Math.floor((e.clientY-rect.top)*H/rect.height)};if(!passable(target)){toast('That tile is blocked by a wall. Choose an open tile.');return;}const path=bfsPath(floor.player,target,new Set(),floor.grid);if(!path.length){toast('No route found to that tile.');return;}clickPath=path.slice(1);keys.clear();toast(clickPath.length?`Route plotted: ${clickPath.length} steps. Click another tile or use the keyboard to adjust.`:'You are already on that tile.');});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){if(terminalOpen)closeTerminal();else if($('helpOverlay').classList.contains('show'))$('helpOverlay').classList.remove('show');return;}
+    if(terminalOpen){if(e.key==='Tab'){return;}return;}
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();keys.add(e.key.length===1?e.key.toLowerCase():e.key);}
+    if(e.key==='e'||e.key==='E'){e.preventDefault();interact();}
+  });
+  document.addEventListener('keyup',e=>{keys.delete(e.key);if(e.key.length===1)keys.delete(e.key.toLowerCase());});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)keys.clear();});
+  // Deterministic map and actor setup; begin only after the player starts the mission.
+  setShell('linux');createFloor(1);setInterval(()=>tick(performance.now()),45);
+})();
+</script>
+</body>
+</html>
