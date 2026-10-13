@@ -353,6 +353,45 @@
     header.hero{ padding: 80px 0 64px; }
     section{ padding: 60px 0; }
   }
+
+/* Featured game project styling */
+.game-project {
+  max-width: 880px;
+  margin: 40px auto;
+  padding: 36px;
+  background: #f5f7fa;
+  border: 1px solid #e2e3e8;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.game-project h2 {
+  margin-bottom: 24px;
+}
+
+.game-project h3 {
+  margin-bottom: 12px;
+}
+
+.game-project p {
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+
+.game-project .project-links a {
+  display: inline-block;
+  margin: 8px 12px 8px 0;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #1b3b6f;
+  color: white;
+  text-decoration: none;
+}
+
+.game-project .project-links a:hover {
+  background: #294f8c;
+}
+
 </style>
 </head>
 <body>
@@ -584,12 +623,23 @@
   }
 </script>
 
-<section>
-  <h2>Wife Rescue</h2>
-  <p>My 2D stealth and strategy game.</p>
-  <a href="wife_rescue.html">Play Game</a>
-  <br>
-  <a href="https://docs.google.com/document/d/1AGR1oFo40E1Zz2dB6RlUI65FhGBzEUjT3j-KxXM2WKU/edit?usp=sharing">Game Design Document</a>
+
+<section class="game-project">
+  <h2>Projects</h2>
+
+  <div class="game-project-content">
+    <h3>Wife Rescue</h3>
+    <p>A 2D stealth and strategy game built around strategic thinking, observation, and timing.</p>
+
+    <div class="game-project-links">
+      <p><a href="wife_rescue.html">Play Game →</a></p>
+      <p>
+        <a href="https://docs.google.com/document/d/1AGR1ofQ4QE1Z2z2dB6R1UI65FHGb2ZEJUjT3J-kXxW2MkU/edit?usp=sharing">
+          Game Design Document →
+        </a>
+      </p>
+    </div>
+  </div>
 </section>  
 </body>
 </html>
