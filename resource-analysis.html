@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A reusable, browser-based CSV data analysis workspace for the Terra Galactic Federation.">
+  <title>TGF Resource Analysis Terminal</title><style>
+:root{--bg:#070b12;--panel:#0d1420;--panel2:#111b2a;--line:#26364b;--gold:#d9a85f;--gold2:#ffc574;--text:#e8e2d7;--muted:#9ca9b9;--faint:#6f7d8f;--green:#7bd5a7;--red:#f18e86;--blue:#83b7e8;--mono:'DM Mono','Courier New',monospace;--sans:'IBM Plex Sans','Segoe UI',sans-serif;color-scheme:dark}
+*{box-sizing:border-box}html{min-width:320px;scroll-behavior:smooth}body{min-height:100vh;margin:0;background:radial-gradient(ellipse at 82% 2%,rgba(36,62,112,.34),transparent 38%),radial-gradient(ellipse at 8% 94%,rgba(59,27,69,.25),transparent 35%),var(--bg);color:var(--text);font-family:var(--sans)}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled,input:disabled,select:disabled,textarea:disabled{cursor:not-allowed;opacity:.48}[hidden]{display:none!important}
+.app-shell{width:min(1500px,calc(100% - 48px));margin:0 auto;padding:26px 0 28px}.site-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 4px 22px;border-bottom:1px solid rgba(129,151,179,.18)}.brand-lockup{display:flex;align-items:center;gap:13px}.brand-mark{width:34px;height:34px;position:relative;display:flex;align-items:center;justify-content:center}.brand-mark span{position:absolute;width:17px;height:17px;border:1.5px solid var(--gold);transform:rotate(45deg)}.brand-mark span:nth-child(1){translate:0 -7px;border-radius:5px 5px 2px 2px}.brand-mark span:nth-child(2){translate:-7px 5px;border-radius:5px 2px 5px 2px;opacity:.7}.brand-mark span:nth-child(3){translate:7px 5px;border-radius:2px 5px 2px 5px;opacity:.7}.brand-name{font:500 11px var(--mono);letter-spacing:1.7px;color:var(--gold2)}.brand-subtitle{margin-top:5px;color:var(--faint);font:10px var(--mono);letter-spacing:1.2px}.header-status{display:flex;align-items:center;gap:9px;color:#c0c8d2;font:10px var(--mono);letter-spacing:1.3px}.status-dot{width:8px;height:8px;flex:0 0 auto;display:inline-block;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(123,213,167,.65)}
+.mission-strip{display:flex;justify-content:space-between;align-items:end;gap:26px;padding:36px 4px 30px}.eyebrow{margin:0 0 10px;color:var(--gold);font:10px var(--mono);letter-spacing:2px;text-transform:uppercase}h1{margin:0 0 12px;color:#f4bd71;font:500 clamp(27px,4vw,42px) var(--mono);letter-spacing:-1.7px}h1 span{color:#f0e4d2}.mission-copy{max-width:720px;margin:0;color:var(--muted);font-size:14px;line-height:1.7}.mission-meta{min-width:215px;display:grid;gap:13px;padding:15px 18px;border:1px solid var(--line);border-radius:8px;background:rgba(13,20,32,.72)}.mission-meta div{display:grid;gap:4px}.meta-label{color:var(--faint);font:9px var(--mono);letter-spacing:1.2px}.mission-meta strong{color:#d8dfeb;font:10px var(--mono);letter-spacing:.4px}
+.tab-nav{display:flex;gap:5px;padding:6px;overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:rgba(13,20,32,.9)}.tab-button{display:flex;align-items:center;gap:9px;flex:1 0 auto;padding:12px 15px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted);font-size:12px;font-weight:600;transition:.18s ease}.tab-button:hover{color:var(--text);background:rgba(255,255,255,.035)}.tab-button.active{border-color:rgba(217,168,95,.32);background:linear-gradient(180deg,rgba(217,168,95,.14),rgba(217,168,95,.06));color:var(--gold2)}.tab-index{color:var(--faint);font:10px var(--mono)}.tab-button.active .tab-index{color:var(--gold)}main{min-height:540px;padding:26px 0 42px}.tab-panel{display:none;animation:rise .22s ease}.tab-panel.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:19px}.section-heading .eyebrow{margin-bottom:7px}h2{margin:0;color:var(--text);font:500 23px var(--mono);letter-spacing:-.5px}.section-tag,.method-pill{padding:7px 9px;border:1px solid rgba(217,168,95,.3);border-radius:4px;color:var(--gold);font:9px var(--mono);letter-spacing:1px;white-space:nowrap}
+.upload-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.9fr);gap:15px}.upload-card,.instructions-card,.panel-card,.summary-card,.quality-card{border:1px solid var(--line);border-radius:9px;background:linear-gradient(145deg,rgba(18,29,44,.96),rgba(12,19,30,.98))}.upload-card{min-height:275px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;border-style:dashed;border-color:#52637b;transition:.18s ease}.upload-card.drag-over{border-color:var(--gold2);background:rgba(217,168,95,.09);box-shadow:inset 0 0 0 1px rgba(217,168,95,.2)}.upload-icon{width:43px;height:43px;display:grid;place-items:center;margin-bottom:15px;border:1px solid rgba(217,168,95,.48);border-radius:50%;color:var(--gold2);font:27px var(--mono)}.upload-card h3,.instructions-card h3,.panel-card h3{margin:0 0 9px;color:#eee6d9;font:500 16px var(--mono)}.upload-card p{max-width:520px;margin:0 0 16px;color:var(--muted);font-size:12px;line-height:1.65}#csv-file-input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}.primary-button,.secondary-button,.text-button{min-height:37px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 14px;border-radius:5px;font-size:11px;font-weight:600;transition:.18s ease}.primary-button{border:1px solid #d6a45e;background:linear-gradient(180deg,#e6b66f,#bf8949);color:#1d1a16;box-shadow:0 4px 13px rgba(0,0,0,.18)}.primary-button:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}.secondary-button{border:1px solid #3a4b62;background:#172438;color:#dbe3ef}.secondary-button:hover:not(:disabled){border-color:#71839b;background:#1c2b42}.text-button{border:0;background:transparent;color:var(--muted)}.text-button:hover:not(:disabled){color:var(--gold2)}.microcopy{margin:12px 0 0!important;color:var(--faint)!important;font:9px var(--mono)!important;letter-spacing:.3px}.file-loaded{display:flex;align-items:center;gap:9px;max-width:100%;margin-top:14px;padding:8px 12px;border:1px solid rgba(123,213,167,.25);border-radius:5px;background:rgba(123,213,167,.06);color:#ccebd9;font:10px var(--mono);overflow-wrap:anywhere}.instructions-card{padding:24px}.instructions-card h3{font-size:14px}.instructions-card ol{margin:16px 0 20px;padding-left:19px;color:#b7c1cf;font-size:12px;line-height:1.8}.instructions-card li{padding-left:4px;margin-bottom:5px}.privacy-note{display:flex;gap:9px;padding-top:13px;border-top:1px solid var(--line);color:var(--green);font-size:10px;line-height:1.5}.privacy-note span{color:var(--gold);font-size:16px}
+.dataset-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:15px}.summary-card,.quality-card{display:flex;flex-direction:column;gap:6px;padding:16px 18px}.summary-label{color:var(--faint);font:9px var(--mono);letter-spacing:1.2px}.summary-card strong,.quality-card strong{color:var(--gold2);font:500 25px var(--mono)}.summary-foot{color:var(--muted);font-size:10px}.panel-card{margin-top:15px;padding:20px}.panel-title-row{display:flex;justify-content:space-between;align-items:start;gap:14px;margin-bottom:14px}.panel-title-row .eyebrow{margin-bottom:7px}.panel-title-row h3{margin:0}.muted-note{color:var(--faint);font:10px var(--mono)}.empty-welcome{margin-top:15px;padding:30px 20px;text-align:center;border:1px solid rgba(38,54,75,.72);border-radius:8px;background:rgba(12,19,30,.42)}.empty-orbit{display:block;margin-bottom:10px;color:var(--gold);font:30px var(--mono)}.empty-welcome h3{margin:0 0 8px;color:#dce4ef;font:500 14px var(--mono)}.empty-welcome p{max-width:520px;margin:0 auto;color:var(--muted);font-size:12px;line-height:1.65}.compact-empty{margin-top:15px}
+.table-wrap{width:100%;overflow:auto;border:1px solid rgba(47,64,85,.7);border-radius:6px}.data-table{width:100%;border-collapse:collapse;color:#d6deea;font-size:11px}.data-table th{position:sticky;top:0;z-index:1;padding:11px 12px;border-bottom:1px solid #34465d;background:#18263a;color:#c9d4e2;text-align:left;font:9px var(--mono);letter-spacing:.8px;white-space:nowrap}.data-table th.sortable{cursor:pointer;user-select:none}.data-table th.sortable:hover{color:var(--gold2)}.data-table td{padding:10px 12px;border-bottom:1px solid rgba(47,64,85,.53);vertical-align:top;line-height:1.55;overflow-wrap:anywhere}.data-table tbody tr:nth-child(even){background:rgba(255,255,255,.018)}.data-table tbody tr:hover{background:rgba(217,168,95,.055)}.data-table tbody tr:last-child td{border-bottom:0}.compact-table{min-width:620px}.compact-table td{max-width:390px}.type-badge{display:inline-block;padding:4px 7px;border:1px solid #40536a;border-radius:3px;color:#b8d1e8;background:rgba(131,183,232,.07);font:9px var(--mono);white-space:nowrap}.type-badge.numeric{color:#a9d9c1;border-color:rgba(123,213,167,.3);background:rgba(123,213,167,.06)}.type-badge.identifier{color:#e2c18e;border-color:rgba(217,168,95,.3);background:rgba(217,168,95,.06)}.empty-state{padding:22px!important;color:var(--faint)!important;text-align:center;font:11px var(--mono)}
+.toolbar{display:flex;align-items:center;gap:10px}.records-toolbar{flex-wrap:wrap;margin-bottom:14px}.search-field{min-width:220px;flex:1;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #364861;border-radius:5px;background:#0c1420;color:var(--gold)}.search-field span{font-size:20px}.search-field input{width:100%;min-height:37px;border:0;outline:0;background:transparent;color:var(--text);font-size:11px}.field-inline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:10px;white-space:nowrap}.field-inline select{max-width:230px;min-height:36px;padding:7px 25px 7px 9px;border:1px solid #364861;border-radius:5px;outline:none;background:#101a29;color:var(--text);font-size:10px}.browser-status{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px;color:var(--gold);font:10px var(--mono)}.records-table-wrap{max-height:600px}.records-table{min-width:1050px;table-layout:auto}.records-table th{cursor:pointer}.records-table td{max-width:440px;min-width:72px;white-space:normal}.records-table td.long-text{min-width:250px;max-width:480px}.records-table td:first-child{white-space:nowrap}.row-edit-button{padding:5px 8px;border:1px solid #40536a;border-radius:4px;background:#172438;color:#e5c18b;font-size:9px}.pagination-row{display:flex;justify-content:center;align-items:center;gap:15px;padding-top:14px;color:var(--muted);font:10px var(--mono)}
+.quality-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.quality-card strong{font-size:23px}.quality-detail-card{margin-top:15px}.panel-actions{display:flex;align-items:center;gap:10px}.helper-text{margin:0 0 14px;color:var(--muted);font-size:11px;line-height:1.65}.issue-table-wrap{max-height:390px}.issue-kind{color:#e2b879;font:9px var(--mono)}.issue-kind.invalid{color:var(--red)}.issue-kind.missing{color:var(--blue)}.issue-kind.conflict{color:#d7a3e5}.cleaning-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start}.cleaning-grid .panel-card{margin-top:15px;min-height:350px}.form-stack{display:grid;gap:11px}.form-stack label{display:grid;gap:6px;color:var(--muted);font-size:10px}.form-stack input,.form-stack select,.form-stack textarea{width:100%;min-height:36px;padding:9px 10px;border:1px solid #354860;border-radius:5px;outline:none;background:#0b1420;color:var(--text);font-size:11px}.form-stack textarea{resize:vertical;line-height:1.5}.form-stack input:focus,.form-stack select:focus,.form-stack textarea:focus,.field-inline select:focus,.search-field:focus-within{border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,168,95,.1)}.form-two-columns{display:grid;grid-template-columns:.65fr 1.35fr;gap:10px}.rule-callout{display:flex;gap:11px;margin:18px 0;padding:13px;border:1px solid rgba(123,213,167,.23);border-radius:5px;background:rgba(123,213,167,.045)}.rule-check{color:var(--green);font-size:17px}.rule-callout div{display:grid;gap:5px}.rule-callout strong{color:#d5e7dc;font-size:11px}.rule-callout span:last-child{color:var(--muted);font-size:10px;line-height:1.5}.preview-box{margin-top:12px;padding:12px;border:1px solid rgba(217,168,95,.32);border-radius:5px;background:rgba(217,168,95,.05);color:#d9e0e9;font-size:10px;line-height:1.6}.preview-box strong{color:var(--gold2)}.preview-box .preview-values{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.preview-values div{padding:8px;border-radius:4px;background:rgba(0,0,0,.2);overflow-wrap:anywhere}.preview-values span{display:block;margin-bottom:3px;color:var(--faint);font:8px var(--mono);text-transform:uppercase}.pending-changes-card{margin-top:15px}.change-count{padding:6px 8px;border:1px solid #3b4b60;border-radius:4px;color:#c6d0dd;font:9px var(--mono)}.pending-preview-content{color:var(--muted);font-size:11px}.pending-preview-content .table-wrap{max-height:210px}.pending-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:15px}
+.stats-control-card{margin-top:0}.stats-controls{display:flex;align-items:center;justify-content:space-between;gap:14px}.unit-note{color:var(--faint);font-size:10px}.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:15px}.stat-card{padding:14px;border:1px solid var(--line);border-radius:7px;background:linear-gradient(145deg,#142135,#0e1725)}.stat-card span{display:block;margin-bottom:8px;color:var(--faint);font:9px var(--mono);letter-spacing:.8px;text-transform:uppercase}.stat-card strong{display:block;color:#f1c27c;font:500 18px var(--mono);overflow-wrap:anywhere}.stat-card small{display:block;margin-top:5px;color:var(--faint);font-size:9px}.chart-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:15px}.chart-card{min-width:0}.chart-card canvas{width:100%;height:250px;display:block}.chart-unit{color:var(--faint);font:9px var(--mono)}.outlier-card{margin-top:15px}.fence-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}.fence-item{padding:11px;border:1px solid #2d4058;border-radius:5px;background:rgba(0,0,0,.14)}.fence-item span{display:block;margin-bottom:6px;color:var(--faint);font:8px var(--mono);letter-spacing:.8px}.fence-item strong{color:#e8d7bc;font:11px var(--mono);overflow-wrap:anywhere}.comparison-wrap{overflow-x:auto;border:1px solid rgba(47,64,85,.7);border-radius:6px}.comparison-table{min-width:550px}.comparison-table th:nth-child(n+2),.comparison-table td:nth-child(n+2){text-align:right}.outlier-table-heading{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 0 9px}.outlier-table-heading h4{margin:0;color:#d9e1ec;font:500 12px var(--mono)}.outlier-table-wrap{max-height:280px}
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.export-card{display:flex;flex-direction:column;align-items:start;min-height:270px;margin-top:0}.export-icon{width:38px;height:38px;display:grid;place-items:center;margin-bottom:17px;border:1px solid rgba(217,168,95,.34);border-radius:6px;color:var(--gold2);font:21px var(--mono)}.export-card h3{margin:0 0 8px}.export-card p:not(.eyebrow){max-width:460px;margin:0 0 22px;color:var(--muted);font-size:11px;line-height:1.7}.export-card button{margin-top:auto}.log-panel{margin-top:15px}.log-panel .table-wrap{max-height:380px}.preservation-note{display:grid;gap:6px;margin-top:15px;padding:15px 17px;border-left:2px solid var(--gold);background:rgba(217,168,95,.045)}.preservation-note strong{color:#e6c38f;font:10px var(--mono);letter-spacing:.7px}.preservation-note span{color:var(--muted);font-size:10px;line-height:1.6}
+.site-footer{display:flex;justify-content:space-between;gap:12px;padding:16px 4px 0;border-top:1px solid rgba(129,151,179,.18);color:var(--faint);font:9px var(--mono);letter-spacing:.8px}.toast-region{position:fixed;right:22px;bottom:22px;z-index:20;display:grid;gap:8px;width:min(370px,calc(100% - 44px))}.toast{padding:12px 14px;border:1px solid #52647c;border-left:3px solid var(--green);border-radius:5px;background:#142237;color:var(--text);box-shadow:0 9px 30px rgba(0,0,0,.35);font-size:11px;line-height:1.5;animation:rise .2s ease}.toast.error{border-left-color:var(--red)}
+@media(max-width:900px){.mission-strip{align-items:start;flex-direction:column}.mission-meta{width:100%;grid-template-columns:1fr 1fr}.chart-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.app-shell{width:min(100% - 24px,1500px);padding-top:15px}.site-header{align-items:start;flex-direction:column}.header-status{padding-left:47px}.mission-strip{padding:26px 3px 22px}.section-heading{align-items:start;flex-direction:column}.upload-layout,.cleaning-grid,.export-grid{grid-template-columns:1fr}.dataset-summary,.quality-grid{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}.stats-controls{align-items:start;flex-direction:column}.fence-grid{grid-template-columns:repeat(2,1fr)}.panel-actions{align-items:start;flex-direction:column}.browser-status{align-items:start;flex-direction:column}.site-footer{flex-direction:column}.form-two-columns{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="app-shell">
+<header class="site-header">
+  <div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div><div><div class="brand-name">TERRA GALACTIC FEDERATION</div><div class="brand-subtitle">DATA OPERATIONS / ANALYST WORKSPACE</div></div></div>
+  <div class="header-status"><span class="status-dot"></span><span id="system-status">LOCAL SYSTEM READY</span></div>
+</header>
+<section class="mission-strip"><div><p class="eyebrow">JUNIOR ANALYST TERMINAL</p><h1>Resource Analysis <span>Workspace</span></h1><p class="mission-copy">Inspect, clean, summarize and export tabular data. Your source file stays unchanged; all work is performed in this browser session.</p></div><div class="mission-meta"><div><span class="meta-label">WORKSPACE</span><strong>DD / ASSIGNMENT 01</strong></div><div><span class="meta-label">PROCESSING</span><strong>LOCAL · IN-BROWSER</strong></div></div></section>
+<nav class="tab-nav" aria-label="Analysis sections">
+  <button class="tab-button active" data-tab="overview" type="button"><span class="tab-index">00</span> Overview</button>
+  <button class="tab-button" data-tab="records" type="button"><span class="tab-index">01</span> Records</button>
+  <button class="tab-button" data-tab="quality" type="button"><span class="tab-index">02</span> Data quality</button>
+  <button class="tab-button" data-tab="statistics" type="button"><span class="tab-index">03</span> Statistics</button>
+  <button class="tab-button" data-tab="exports" type="button"><span class="tab-index">04</span> Exports</button>
+</nav>
+<main>
+<section class="tab-panel active" id="panel-overview" aria-labelledby="overview-heading">
+  <div class="section-heading"><div><p class="eyebrow">START HERE</p><h2 id="overview-heading">Load a CSV dataset</h2></div><span class="section-tag">T1 · IMPORT & PROFILE</span></div>
+  <div class="upload-layout">
+    <div class="upload-card" id="upload-dropzone"><div class="upload-icon" aria-hidden="true">↑</div><h3>Import your source file</h3><p>Choose a CSV from your computer or drag it into this area. The original file is read only and is never overwritten.</p><label class="primary-button file-button" for="csv-file-input">Choose CSV file</label><input id="csv-file-input" type="file" accept=".csv,text/csv,application/vnd.ms-excel"><p class="microcopy">CSV · UTF-8 supported · processing stays in this browser</p><div class="file-loaded" id="file-loaded" hidden><span class="status-dot"></span><span id="loaded-file-name">No file loaded</span></div></div>
+    <aside class="instructions-card"><p class="eyebrow">BEFORE YOU BEGIN</p><h3>Protect the original extract</h3><ol><li>Keep the downloaded source CSV unchanged.</li><li>Review the suggested data types before analysis.</li><li>Preview all cleaning actions before applying them.</li><li>Export the cleaned data and a separate change log.</li></ol><div class="privacy-note"><span>◈</span> No upload to a server. Your selected file is processed locally.</div></aside>
+  </div>
+  <div class="dataset-summary" id="dataset-summary" hidden>
+    <div class="summary-card"><span class="summary-label">DATA RECORDS</span><strong id="summary-rows">—</strong><span class="summary-foot">excluding header row</span></div>
+    <div class="summary-card"><span class="summary-label">COLUMNS</span><strong id="summary-columns">—</strong><span class="summary-foot">detected fields</span></div>
+    <div class="summary-card"><span class="summary-label">MISSING CELLS</span><strong id="summary-missing">—</strong><span class="summary-foot">blank values</span></div>
+    <div class="summary-card"><span class="summary-label">EXACT DUPLICATES</span><strong id="summary-duplicates">—</strong><span class="summary-foot">repeated complete rows</span></div>
+  </div>
+  <div class="panel-card" id="profile-card" hidden><div class="panel-title-row"><div><p class="eyebrow">AUTOMATIC PROFILE</p><h3>Suggested column types</h3></div><span class="muted-note">Suggestions are provisional. Confirm meaning before analysis.</span></div><div class="table-wrap profile-table-wrap"><table class="data-table compact-table"><thead><tr><th>Column</th><th>Suggested type</th><th>Non-blank</th><th>Distinct</th><th>Missing</th></tr></thead><tbody id="profile-table-body"><tr><td colspan="5" class="empty-state">Load a CSV to generate a profile.</td></tr></tbody></table></div></div>
+  <div class="empty-welcome" id="empty-welcome"><span class="empty-orbit">◎</span><h3>Awaiting source data</h3><p>Load a CSV to activate record inspection, data-quality checks, descriptive statistics, charts and exports.</p></div>
+</section>
+<section class="tab-panel" id="panel-records" aria-labelledby="records-heading">
+  <div class="section-heading"><div><p class="eyebrow">DATA EXPLORER</p><h2 id="records-heading">Record browser</h2></div><span class="section-tag">T2 · SEARCH / SORT / FILTER</span></div>
+  <div class="panel-card"><div class="toolbar records-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Search records and complete descriptions / notes…" disabled></label><label class="field-inline">Column <select id="column-filter" disabled><option value="*">All columns</option></select></label><label class="field-inline">Rows <select id="page-size" disabled><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option><option value="all">All</option></select></label></div>
+    <div class="browser-status"><span id="browser-count">Load a CSV to browse records.</span><span class="muted-note">Click a column heading to sort. Descriptions and notes are shown in full.</span></div>
+    <div class="table-wrap records-table-wrap"><table class="data-table records-table" id="records-table"><thead id="records-table-head"><tr><th>Records will appear here</th></tr></thead><tbody id="records-table-body"><tr><td class="empty-state">No dataset loaded.</td></tr></tbody></table></div>
+    <div class="pagination-row"><button id="previous-page" class="secondary-button" type="button" disabled>← Previous</button><span id="page-label">Page —</span><button id="next-page" class="secondary-button" type="button" disabled>Next →</button></div>
+  </div>
+</section>
+<section class="tab-panel" id="panel-quality" aria-labelledby="quality-heading">
+  <div class="section-heading"><div><p class="eyebrow">VALIDATION & CLEANING</p><h2 id="quality-heading">Data quality review</h2></div><span class="section-tag">T3 · DETECT / PREVIEW / APPLY</span></div>
+  <div class="quality-grid" id="quality-summary"><div class="quality-card"><span class="summary-label">MISSING CELLS</span><strong id="quality-missing">—</strong><span class="summary-foot">empty values</span></div><div class="quality-card"><span class="summary-label">INVALID VALUES</span><strong id="quality-invalid">—</strong><span class="summary-foot">against suggested types</span></div><div class="quality-card"><span class="summary-label">EXACT DUPLICATES</span><strong id="quality-duplicates">—</strong><span class="summary-foot">complete repeated rows</span></div><div class="quality-card"><span class="summary-label">CONFLICTING IDs</span><strong id="quality-conflicts">—</strong><span class="summary-foot">reused ID, differing row data</span></div></div>
+  <div class="panel-card quality-detail-card"><div class="panel-title-row"><div><p class="eyebrow">ISSUE REGISTER</p><h3>Detected data-quality issues</h3></div><div class="panel-actions"><label class="field-inline">ID field <select id="id-column-select" disabled><option value="">Choose identifier</option></select></label><button id="refresh-quality" class="secondary-button" type="button" disabled>Recheck data</button></div></div><p class="helper-text">The checks below are mechanical indicators, not proof that a value is wrong. Select a field that is intended to uniquely identify a record; site, officer or project identifiers may legitimately repeat in transactional data. Resolve issues only when you have evidence for the correction.</p><div class="table-wrap issue-table-wrap"><table class="data-table compact-table"><thead><tr><th>Issue</th><th>Source record</th><th>Column / key</th><th>Observed value / detail</th></tr></thead><tbody id="issues-table-body"><tr><td colspan="4" class="empty-state">Load a CSV to run checks.</td></tr></tbody></table></div><p class="microcopy" id="issue-limit-note"></p></div>
+  <div class="cleaning-grid">
+    <div class="panel-card"><div class="panel-title-row"><div><p class="eyebrow">MANUAL CORRECTION</p><h3>Edit a cell with a reason</h3></div></div><form id="manual-edit-form" class="form-stack"><div class="form-two-columns"><label>Source record # (1-based) <input id="edit-record-number" type="number" min="1" step="1" placeholder="e.g. 12" required disabled></label><label>Column <select id="edit-column" required disabled><option value="">Choose column</option></select></label></div><label>New value <input id="edit-new-value" type="text" placeholder="Enter replacement value (leave blank to clear)" disabled></label><label>Reason / evidence for change <textarea id="edit-reason" rows="2" placeholder="Explain why this correction is supported" required disabled></textarea></label><button class="primary-button" type="submit" id="preview-manual-edit" disabled>Preview manual edit</button></form><div id="manual-edit-preview" class="preview-box" hidden></div></div>
+    <div class="panel-card"><div class="panel-title-row"><div><p class="eyebrow">AUTOMATIC RULES</p><h3>Preview safe cleanup</h3></div></div><p class="helper-text">This rule trims leading and trailing whitespace in cells, then removes only rows that are exact duplicates after trimming. It does not guess missing values or resolve conflicting IDs.</p><div class="rule-callout"><span class="rule-check">✓</span><div><strong>Deterministic rule</strong><span>Same source values produce the same preview. The first exact copy is retained.</span></div></div><button id="preview-auto-clean" class="primary-button" type="button" disabled>Preview automatic cleanup</button><div id="auto-clean-preview" class="preview-box" hidden></div></div>
+  </div>
+  <div class="panel-card pending-changes-card"><div class="panel-title-row"><div><p class="eyebrow">CHANGE CONTROL</p><h3>Pending preview</h3></div><span class="change-count" id="pending-change-count">0 proposed changes</span></div><div id="pending-preview-content" class="pending-preview-content"><p class="empty-state">No preview waiting. Preview an edit or automatic rule to review its effect before applying it.</p></div><div class="pending-actions"><button id="apply-pending-changes" class="primary-button" type="button" disabled>Apply previewed changes</button><button id="discard-pending-changes" class="secondary-button" type="button" disabled>Discard preview</button><button id="reset-to-original" class="text-button" type="button" disabled>Reset working data to original</button></div></div>
+</section>
+<section class="tab-panel" id="panel-statistics" aria-labelledby="statistics-heading">
+  <div class="section-heading"><div><p class="eyebrow">DESCRIPTIVE ANALYSIS</p><h2 id="statistics-heading">Statistics & distribution</h2></div><span class="section-tag">T4–T5 · SUMMARY / CHARTS / IQR</span></div>
+  <div class="panel-card stats-control-card"><div class="stats-controls"><label class="field-inline">Numerical variable <select id="numeric-column-select" disabled><option value="">Load a dataset first</option></select></label><span class="unit-note">Calculations use the stored values. Confirm the measurement unit before interpreting totals.</span></div></div>
+  <div id="statistics-empty" class="empty-welcome compact-empty"><span class="empty-orbit">∑</span><h3>Choose a numerical variable</h3><p>Load a CSV and select a numerical column to calculate descriptive statistics and inspect its distribution.</p></div>
+  <div id="statistics-content" hidden><div class="stats-grid" id="stats-grid"></div><div class="chart-grid"><div class="panel-card chart-card"><div class="panel-title-row"><div><p class="eyebrow">FREQUENCY DISTRIBUTION</p><h3>Histogram</h3></div><span class="chart-unit" id="histogram-caption">—</span></div><canvas id="histogram-canvas" height="260" aria-label="Histogram of selected numerical variable"></canvas></div><div class="panel-card chart-card"><div class="panel-title-row"><div><p class="eyebrow">FIVE-NUMBER SUMMARY</p><h3>Box plot</h3></div><span class="chart-unit">Inclusive quartiles</span></div><canvas id="boxplot-canvas" height="260" aria-label="Box plot using inclusive quartiles"></canvas></div></div>
+    <div class="panel-card outlier-card"><div class="panel-title-row"><div><p class="eyebrow">1.5 × IQR METHOD</p><h3>Outlier assessment</h3></div><span class="method-pill">Inclusive quartiles · fixed original fences</span></div><div class="fence-grid" id="fence-summary"></div><p class="helper-text">Quartiles use linear interpolation at (n − 1) × p, equivalent to an inclusive percentile calculation. The lower and upper fences are calculated from the full selected column; the same fences are then used to identify the inlier subset for comparison.</p><div class="comparison-wrap"><table class="data-table comparison-table"><thead><tr><th>Measure</th><th>All valid values</th><th>Within the same fences</th></tr></thead><tbody id="comparison-table-body"></tbody></table></div><div class="outlier-table-heading"><h4>Values beyond the fences</h4><span id="outlier-count-label" class="muted-note">—</span></div><div class="table-wrap outlier-table-wrap"><table class="data-table compact-table"><thead><tr><th>Source record</th><th>Value</th><th>Side</th></tr></thead><tbody id="outlier-table-body"><tr><td colspan="3" class="empty-state">No analysis available.</td></tr></tbody></table></div><p class="microcopy">An outlier is a statistical flag, not automatically an error. Keep or exclude values only with a documented analytical reason.</p></div>
+  </div>
+</section>
+<section class="tab-panel" id="panel-exports" aria-labelledby="exports-heading">
+  <div class="section-heading"><div><p class="eyebrow">DELIVERABLES</p><h2 id="exports-heading">Export & audit trail</h2></div><span class="section-tag">T6 · CLEAN CSV / CHANGE LOG</span></div>
+  <div class="export-grid"><div class="panel-card export-card"><div class="export-icon">⇩</div><p class="eyebrow">CLEANED DATA</p><h3>Export unique records</h3><p>Downloads your current working data as a CSV. Any remaining exact whole-row duplicates are excluded, retaining the first copy. Conflicting IDs are not automatically resolved.</p><button id="export-cleaned" class="primary-button" type="button" disabled>Download cleaned CSV</button></div><div class="panel-card export-card"><div class="export-icon">≡</div><p class="eyebrow">AUDIT TRAIL</p><h3>Export change log</h3><p>Downloads original and new values, source record, affected column, method and reason for each applied or export-time change.</p><button id="export-log" class="secondary-button" type="button" disabled>Download change log</button></div></div>
+  <div class="panel-card log-panel"><div class="panel-title-row"><div><p class="eyebrow">SESSION HISTORY</p><h3>Applied changes</h3></div><span id="log-count" class="change-count">0 logged changes</span></div><div class="table-wrap"><table class="data-table compact-table"><thead><tr><th>Source record</th><th>Column</th><th>Original value</th><th>New value</th><th>Method</th><th>Reason</th></tr></thead><tbody id="change-log-body"><tr><td colspan="6" class="empty-state">No changes recorded in this session.</td></tr></tbody></table></div></div>
+  <div class="preservation-note"><strong>Source preservation</strong><span>The imported file is never edited in place. Reset returns the working copy to the values originally read from the selected CSV. Export creates new downloads and does not overwrite the source.</span></div>
+</section>
+</main>
+<footer class="site-footer"><span>TGF / DATA OPERATIONS</span><span>LOCAL ANALYSIS SESSION · ORIGINAL EXTRACT PRESERVED</span><span id="footer-dataset">NO DATASET LOADED</span></footer>
+</div><div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+<script>
+'use strict';
+
+/* TGF Resource Analysis Terminal
+   General-purpose CSV analysis. No assignment-specific findings are embedded. */
+
+const state = {
+  fileName: '', headers: [], originalRows: [], workingRows: [], columnTypes: [],
+  delimiter: ',', sortIndex: null, sortDirection: 1, currentPage: 1,
+  pending: null, changeLog: [], loaded: false
+};
+
+const $ = (id) => document.getElementById(id);
+const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 });
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function showToast(message, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = `toast${isError ? ' error' : ''}`;
+  toast.textContent = message;
+  $('toast-region').appendChild(toast);
+  window.setTimeout(() => toast.remove(), 4300);
+}
+function formatNumber(value, decimals = 4) {
+  if (!Number.isFinite(value)) return '—';
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: decimals }).format(value);
+}
+function parseNumeric(value) {
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+  // Accept ordinary decimal values and comma-separated thousands, but not arbitrary text.
+  const valid = /^[+-]?(?:(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+  if (!valid.test(text)) return null;
+  const number = Number(text.replace(/,/g, ''));
+  return Number.isFinite(number) ? number : null;
+}
+function parseDateValue(value) {
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+  const timestamp = Date.parse(text);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+function isBlank(value) { return String(value ?? '').trim() === ''; }
+
+function detectDelimiter(text) {
+  const firstLine = String(text).split(/\r?\n/, 1)[0] || '';
+  const counts = { ',': 0, ';': 0, '\t': 0 };
+  let quoted = false;
+  for (let i = 0; i < firstLine.length; i++) {
+    const ch = firstLine[i];
+    if (ch === '"') {
+      if (quoted && firstLine[i + 1] === '"') i++;
+      else quoted = !quoted;
+    } else if (!quoted && Object.prototype.hasOwnProperty.call(counts, ch)) counts[ch]++;
+  }
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+function parseCSV(text) {
+  const source = String(text ?? '').replace(/^\uFEFF/, '');
+  const delimiter = detectDelimiter(source);
+  const rows = [];
+  let row = [], field = '', quoted = false;
+  for (let i = 0; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"') {
+      if (quoted && source[i + 1] === '"') { field += '"'; i++; }
+      else if (quoted) quoted = false;
+      else if (field.length === 0) quoted = true;
+      else field += ch;
+    } else if (ch === delimiter && !quoted) {
+      row.push(field); field = '';
+    } else if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && source[i + 1] === '\n') i++;
+      row.push(field);
+      if (row.some(cell => String(cell).trim() !== '')) rows.push(row);
+      row = []; field = '';
+    } else {
+      field += ch;
+    }
+  }
+  row.push(field);
+  if (row.some(cell => String(cell).trim() !== '')) rows.push(row);
+  if (rows.length < 2) throw new Error('The CSV must contain a header row and at least one data record.');
+
+  const headers = rows.shift().map((value, index) => {
+    const name = String(value ?? '').trim();
+    return name || `Column_${index + 1}`;
+  });
+  const widest = Math.max(headers.length, ...rows.map(r => r.length));
+  while (headers.length < widest) {
+    let extra = headers.length + 1;
+    while (headers.includes(`ExtraColumn_${extra}`)) extra++;
+    headers.push(`ExtraColumn_${extra}`);
+  }
+  const dataRows = rows.map((record, index) => {
+    const values = headers.map((_, col) => String(record[col] ?? ''));
+    return { sourceRecord: index + 1, values };
+  });
+  return { headers, rows: dataRows, delimiter };
+}
+
+function inferColumnType(header, rows, columnIndex) {
+  const name = String(header).toLowerCase();
+  const values = rows.map(row => row.values[columnIndex]).filter(v => !isBlank(v));
+  if (/date|datetime|timestamp/.test(name)) return 'date';
+  if (/^id$|identifier|ID$|_id$|code$/i.test(String(header)) || /(transaction|project|officer|site)/.test(name)) return 'identifier';
+  if (!values.length) return 'text';
+  const numericRatio = values.filter(v => parseNumeric(v) !== null).length / values.length;
+  const dateRatio = values.filter(v => parseDateValue(v) !== null).length / values.length;
+  if (numericRatio >= 0.85) return 'numeric';
+  if (dateRatio >= 0.85 && values.some(v => /[-/]/.test(v))) return 'date';
+  const distinct = new Set(values.map(v => v.trim())).size;
+  if (distinct <= 40 || distinct / values.length <= 0.18) return 'categorical';
+  return 'text';
+}
+function refreshTypes() {
+  state.columnTypes = state.headers.map((header, index) => inferColumnType(header, state.originalRows, index));
+}
+function getMissingCount(rows = state.workingRows) {
+  let count = 0;
+  rows.forEach(row => row.values.forEach(value => { if (isBlank(value)) count++; }));
+  return count;
+}
+function findExactDuplicates(rows = state.workingRows) {
+  const seen = new Set();
+  const duplicates = [];
+  rows.forEach(row => {
+    const key = JSON.stringify(row.values);
+    if (seen.has(key)) duplicates.push(row);
+    else seen.add(key);
+  });
+  return duplicates;
+}
+function getIdConflicts(columnIndex, rows = state.workingRows) {
+  if (!Number.isInteger(columnIndex) || columnIndex < 0) return [];
+  const groups = new Map();
+  rows.forEach(row => {
+    const key = String(row.values[columnIndex] ?? '').trim();
+    if (!key) return;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  });
+  const conflicts = [];
+  for (const [key, group] of groups.entries()) {
+    if (group.length < 2) continue;
+    const variants = new Set(group.map(row => JSON.stringify(row.values)));
+    if (variants.size > 1) conflicts.push({ key, rows: group });
+  }
+  return conflicts;
+}
+function getInvalidCells(rows = state.workingRows) {
+  const invalids = [];
+  rows.forEach(row => row.values.forEach((value, colIndex) => {
+    if (isBlank(value)) return;
+    const type = state.columnTypes[colIndex];
+    const invalid = (type === 'numeric' && parseNumeric(value) === null) || (type === 'date' && parseDateValue(value) === null);
+    if (invalid) invalids.push({ row, colIndex, value, type });
+  }));
+  return invalids;
+}
+function guessIdColumn() {
+  const candidates = state.columnTypes.map((type, index) => ({type, index, name: state.headers[index].toLowerCase()})).filter(item => item.type === 'identifier');
+  if (!candidates.length) return -1;
+  const transaction = candidates.find(item => /transaction/.test(item.name));
+  return transaction ? transaction.index : candidates[0].index;
+}
+function renderProfile() {
+  const body = $('profile-table-body');
+  body.innerHTML = state.headers.map((header, index) => {
+    const values = state.workingRows.map(row => row.values[index]);
+    const nonblank = values.filter(value => !isBlank(value));
+    const missing = values.length - nonblank.length;
+    const distinct = new Set(nonblank.map(value => value.trim())).size;
+    const type = state.columnTypes[index];
+    const badgeClass = type === 'numeric' ? 'numeric' : type === 'identifier' ? 'identifier' : '';
+    return `<tr><td>${escapeHTML(header)}</td><td><span class="type-badge ${badgeClass}">${escapeHTML(type)}</span></td><td>${formatNumber(nonblank.length, 0)}</td><td>${formatNumber(distinct, 0)}</td><td>${formatNumber(missing, 0)}</td></tr>`;
+  }).join('');
+}
+function updateDatasetSummary() {
+  $('dataset-summary').hidden = !state.loaded;
+  $('profile-card').hidden = !state.loaded;
+  $('empty-welcome').hidden = state.loaded;
+  if (!state.loaded) return;
+  $('summary-rows').textContent = formatNumber(state.workingRows.length, 0);
+  $('summary-columns').textContent = formatNumber(state.headers.length, 0);
+  $('summary-missing').textContent = formatNumber(getMissingCount(), 0);
+  $('summary-duplicates').textContent = formatNumber(findExactDuplicates().length, 0);
+  $('file-loaded').hidden = false;
+  $('loaded-file-name').textContent = state.fileName;
+  $('footer-dataset').textContent = `${state.workingRows.length} RECORDS · ${state.headers.length} FIELDS`;
+  renderProfile();
+}
+
+function setLoadedControls(enabled) {
+  const ids = ['global-search','column-filter','page-size','id-column-select','refresh-quality','edit-record-number','edit-column','edit-new-value','edit-reason','preview-manual-edit','preview-auto-clean','reset-to-original','numeric-column-select','export-cleaned','export-log'];
+  ids.forEach(id => { $(id).disabled = !enabled; });
+  $('apply-pending-changes').disabled = true;
+  $('discard-pending-changes').disabled = true;
+}
+function populateSelectors() {
+  const options = state.headers.map((header, index) => `<option value="${index}">${escapeHTML(header)}</option>`).join('');
+  $('column-filter').innerHTML = '<option value="*">All columns</option>' + options;
+  $('edit-column').innerHTML = '<option value="">Choose column</option>' + options;
+  const idOptions = state.headers.map((header, index) => state.columnTypes[index] === 'identifier' ? `<option value="${index}">${escapeHTML(header)}</option>` : '').join('');
+  $('id-column-select').innerHTML = '<option value="">Choose identifier</option>' + idOptions;
+  const numericOptions = state.headers.map((header, index) => state.columnTypes[index] === 'numeric' ? `<option value="${index}">${escapeHTML(header)}</option>` : '').join('');
+  $('numeric-column-select').innerHTML = numericOptions || '<option value="">No numerical columns suggested</option>';
+  const idIndex = guessIdColumn();
+  if (idIndex >= 0) $('id-column-select').value = String(idIndex);
+  if (numericOptions) {
+    const amountIndex = state.headers.findIndex((header, index) => state.columnTypes[index] === 'numeric' && /amount|value|quantity|cost|total/.test(header.toLowerCase()));
+    const firstNumeric = state.headers.findIndex((_, index) => state.columnTypes[index] === 'numeric');
+    $('numeric-column-select').value = String(amountIndex >= 0 ? amountIndex : firstNumeric);
+  }
+}
+
+async function loadCSVFile(file) {
+  if (!file) return;
+  if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv' && file.type !== 'application/vnd.ms-excel') {
+    showToast('Please select a CSV file.', true); return;
+  }
+  if (state.loaded && (state.changeLog.length || state.workingRows.some((row, i) => JSON.stringify(row.values) !== JSON.stringify(state.originalRows[i]?.values)))) {
+    const proceed = window.confirm('Loading another file will replace this browser session and its unexported changes. Continue?');
+    if (!proceed) return;
+  }
+  try {
+    $('system-status').textContent = 'READING SOURCE FILE';
+    const text = await file.text();
+    const parsed = parseCSV(text);
+    state.fileName = file.name;
+    state.headers = parsed.headers;
+    state.originalRows = parsed.rows.map(row => ({ sourceRecord: row.sourceRecord, values: [...row.values] }));
+    state.workingRows = parsed.rows.map(row => ({ sourceRecord: row.sourceRecord, values: [...row.values] }));
+    state.delimiter = parsed.delimiter;
+    state.sortIndex = null; state.sortDirection = 1; state.currentPage = 1;
+    state.pending = null; state.changeLog = []; state.loaded = true;
+    refreshTypes();
+    setLoadedControls(true);
+    populateSelectors();
+    updateAll();
+    $('browser-count').textContent = `${formatNumber(state.workingRows.length, 0)} records loaded`;
+    $('system-status').textContent = 'DATASET LOADED';
+    showToast(`Loaded ${file.name}: ${state.workingRows.length.toLocaleString()} records and ${state.headers.length} columns.`);
+  } catch (error) {
+    $('system-status').textContent = 'LOCAL SYSTEM READY';
+    showToast(error.message || 'Unable to read this CSV file.', true);
+  }
+}
+
+function updateAll() {
+  updateDatasetSummary();
+  renderRecords();
+  renderQuality();
+  renderStatistics();
+  renderChangeLog();
+  updatePendingUI();
+}
+
+// Navigation
+function activateTab(tabName) {
+  document.querySelectorAll('.tab-button').forEach(button => button.classList.toggle('active', button.dataset.tab === tabName));
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === `panel-${tabName}`));
+  if (tabName === 'statistics') renderStatistics();
+}
+document.querySelectorAll('.tab-button').forEach(button => button.addEventListener('click', () => activateTab(button.dataset.tab)));
+
+// CSV input and drag/drop
+$('csv-file-input').addEventListener('change', event => loadCSVFile(event.target.files[0]));
+const dropzone = $('upload-dropzone');
+['dragenter','dragover'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.add('drag-over'); }));
+['dragleave','drop'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.remove('drag-over'); }));
+dropzone.addEventListener('drop', event => loadCSVFile(event.dataTransfer.files[0]));
+
+// Record browser
+function getFilteredRows() {
+  const query = $('global-search').value.trim().toLowerCase();
+  const selectedColumn = $('column-filter').value;
+  let rows = [...state.workingRows];
+  if (query) {
+    rows = rows.filter(row => {
+      if (selectedColumn !== '*') return String(row.values[Number(selectedColumn)] ?? '').toLowerCase().includes(query);
+      return row.values.some(value => String(value ?? '').toLowerCase().includes(query));
+    });
+  }
+  if (state.sortIndex !== null) {
+    const col = state.sortIndex;
+    rows.sort((a, b) => {
+      const av = a.values[col] ?? '', bv = b.values[col] ?? '';
+      let compare = 0;
+      if (state.columnTypes[col] === 'numeric') compare = (parseNumeric(av) ?? -Infinity) - (parseNumeric(bv) ?? -Infinity);
+      else if (state.columnTypes[col] === 'date') compare = (parseDateValue(av) ?? -Infinity) - (parseDateValue(bv) ?? -Infinity);
+      else compare = String(av).localeCompare(String(bv), undefined, {numeric:true, sensitivity:'base'});
+      return compare * state.sortDirection;
+    });
+  }
+  return rows;
+}
+function renderRecords() {
+  if (!state.loaded) return;
+  const head = $('records-table-head');
+  const body = $('records-table-body');
+  head.innerHTML = `<tr>${state.headers.map((header, index) => `<th class="sortable" data-sort-index="${index}">${escapeHTML(header)}${state.sortIndex === index ? (state.sortDirection === 1 ? ' ↑' : ' ↓') : ''}</th>`).join('')}<th>Action</th></tr>`;
+  head.querySelectorAll('[data-sort-index]').forEach(th => th.addEventListener('click', () => {
+    const index = Number(th.dataset.sortIndex);
+    if (state.sortIndex === index) state.sortDirection *= -1;
+    else { state.sortIndex = index; state.sortDirection = 1; }
+    state.currentPage = 1; renderRecords();
+  }));
+  const rows = getFilteredRows();
+  const pageSizeValue = $('page-size').value;
+  const pageSize = pageSizeValue === 'all' ? Math.max(rows.length, 1) : Number(pageSizeValue);
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  state.currentPage = Math.min(state.currentPage, pageCount);
+  const start = (state.currentPage - 1) * pageSize;
+  const pageRows = rows.slice(start, start + pageSize);
+  $('browser-count').textContent = `${rows.length.toLocaleString()} matching records · ${state.workingRows.length.toLocaleString()} total`;
+  $('page-label').textContent = `Page ${state.currentPage} of ${pageCount}`;
+  $('previous-page').disabled = state.currentPage <= 1;
+  $('next-page').disabled = state.currentPage >= pageCount;
+  if (!pageRows.length) {
+    body.innerHTML = `<tr><td colspan="${state.headers.length + 1}" class="empty-state">No records match the current search.</td></tr>`;
+    return;
+  }
+  const longColumn = index => state.columnTypes[index] === 'text' || /description|notes|comment/i.test(state.headers[index]);
+  body.innerHTML = pageRows.map(row => `<tr>${row.values.map((value, index) => `<td class="${longColumn(index) ? 'long-text' : ''}">${escapeHTML(value)}</td>`).join('')}<td><button class="row-edit-button" type="button" data-edit-record="${row.sourceRecord}">Review / edit</button></td></tr>`).join('');
+  body.querySelectorAll('[data-edit-record]').forEach(button => button.addEventListener('click', () => {
+    $('edit-record-number').value = button.dataset.editRecord;
+    $('edit-column').value = '';
+    $('edit-new-value').value = '';
+    $('edit-reason').value = '';
+    activateTab('quality');
+    $('edit-column').focus();
+    showToast(`Source record ${button.dataset.editRecord} selected for review.`);
+  }));
+}
+$('global-search').addEventListener('input', () => { state.currentPage = 1; renderRecords(); });
+$('column-filter').addEventListener('change', () => { state.currentPage = 1; renderRecords(); });
+$('page-size').addEventListener('change', () => { state.currentPage = 1; renderRecords(); });
+$('previous-page').addEventListener('click', () => { state.currentPage = Math.max(1, state.currentPage - 1); renderRecords(); });
+$('next-page').addEventListener('click', () => { state.currentPage += 1; renderRecords(); });
+
+// Data quality review
+function collectQualityIssues() {
+  const issues = [];
+  const missing = [];
+  const invalid = getInvalidCells();
+  state.workingRows.forEach(row => row.values.forEach((value, colIndex) => {
+    if (isBlank(value)) missing.push({ kind:'Missing', row, column:state.headers[colIndex], detail:'Blank value', style:'missing' });
+  }));
+  missing.forEach(issue => issues.push(issue));
+  invalid.forEach(issue => issues.push({ kind:'Invalid', row:issue.row, column:state.headers[issue.colIndex], detail:`Not valid as suggested ${issue.type}: ${issue.value}`, style:'invalid' }));
+
+  const seen = new Map();
+  state.workingRows.forEach(row => {
+    const key = JSON.stringify(row.values);
+    if (seen.has(key)) issues.push({ kind:'Exact duplicate', row, column:'Complete record', detail:`Identical to source record ${seen.get(key).sourceRecord}`, style:'duplicate' });
+    else seen.set(key, row);
+  });
+
+  const idIndex = $('id-column-select').value === '' ? -1 : Number($('id-column-select').value);
+  const conflicts = getIdConflicts(idIndex);
+  conflicts.forEach(group => {
+    const recordList = group.rows.map(row => row.sourceRecord).join(', ');
+    issues.push({ kind:'Conflicting ID', row:group.rows[0], column:state.headers[idIndex], detail:`${group.key} appears in source records ${recordList}, with non-identical rows`, style:'conflict' });
+  });
+  return { issues, missingCount:missing.length, invalidCount:invalid.length, duplicateCount:findExactDuplicates().length, conflicts };
+}
+function renderQuality() {
+  if (!state.loaded) return;
+  const result = collectQualityIssues();
+  $('quality-missing').textContent = formatNumber(result.missingCount, 0);
+  $('quality-invalid').textContent = formatNumber(result.invalidCount, 0);
+  $('quality-duplicates').textContent = formatNumber(result.duplicateCount, 0);
+  $('quality-conflicts').textContent = formatNumber(result.conflicts.length, 0);
+  const issueRows = result.issues.slice(0, 250);
+  $('issues-table-body').innerHTML = issueRows.length ? issueRows.map(issue => `<tr><td><span class="issue-kind ${issue.style}">${escapeHTML(issue.kind)}</span></td><td>${issue.row.sourceRecord}</td><td>${escapeHTML(issue.column)}</td><td>${escapeHTML(issue.detail)}</td></tr>`).join('') : `<tr><td colspan="4" class="empty-state">No issues detected by the current checks.</td></tr>`;
+  $('issue-limit-note').textContent = result.issues.length > issueRows.length ? `Showing the first ${issueRows.length} of ${result.issues.length.toLocaleString()} issue entries.` : `${result.issues.length.toLocaleString()} issue entries shown. Blank markers such as “NA” are not automatically treated as missing.`;
+}
+$('id-column-select').addEventListener('change', renderQuality);
+$('refresh-quality').addEventListener('click', () => { renderQuality(); updateDatasetSummary(); showToast('Data-quality checks recalculated.'); });
+
+// Preview and apply corrections. Source records retain their original record number.
+function setPending(pending) {
+  state.pending = pending;
+  updatePendingUI();
+}
+function updatePendingUI() {
+  const pending = state.pending;
+  const count = pending ? pending.changes.length + pending.removals.length : 0;
+  $('pending-change-count').textContent = `${count.toLocaleString()} proposed changes`;
+  $('apply-pending-changes').disabled = !pending || count === 0;
+  $('discard-pending-changes').disabled = !pending;
+  if (!pending) {
+    $('pending-preview-content').innerHTML = '<p class="empty-state">No preview waiting. Preview an edit or automatic rule to review its effect before applying it.</p>';
+    return;
+  }
+  const rows = [];
+  pending.changes.forEach(change => rows.push({record:change.sourceRecord, column:state.headers[change.colIndex], old:change.oldValue, next:change.newValue, method:change.method}));
+  pending.removals.forEach(removal => rows.push({record:removal.sourceRecord, column:'Complete record', old:'Exact repeated row', next:'Remove later copy', method:'Automatic duplicate removal'}));
+  const shown = rows.slice(0, 100);
+  $('pending-preview-content').innerHTML = `<div class="table-wrap"><table class="data-table compact-table"><thead><tr><th>Source record</th><th>Column</th><th>Original value</th><th>Proposed value</th><th>Method</th></tr></thead><tbody>${shown.map(item => `<tr><td>${item.record}</td><td>${escapeHTML(item.column)}</td><td>${escapeHTML(item.old)}</td><td>${escapeHTML(item.next)}</td><td>${escapeHTML(item.method)}</td></tr>`).join('')}</tbody></table></div>${rows.length > shown.length ? `<p class="microcopy">Showing ${shown.length} of ${rows.length} proposed changes. All listed changes will be applied.</p>` : ''}`;
+}
+$('manual-edit-form').addEventListener('submit', event => {
+  event.preventDefault();
+  if (!state.loaded) return;
+  const sourceRecord = Number($('edit-record-number').value);
+  if ($('edit-column').value === '') { showToast('Choose a column to edit.', true); return; }
+  const colIndex = Number($('edit-column').value);
+  const newValue = $('edit-new-value').value;
+  const reason = $('edit-reason').value.trim();
+  if (!Number.isInteger(sourceRecord) || sourceRecord < 1 || !state.workingRows.some(row => row.sourceRecord === sourceRecord)) {
+    showToast('Enter a valid source record number from the current working data.', true); return;
+  }
+  if (!Number.isInteger(colIndex) || colIndex < 0 || colIndex >= state.headers.length) { showToast('Choose a column to edit.', true); return; }
+  if (!reason) { showToast('Add the evidence or reason for this correction.', true); return; }
+  const row = state.workingRows.find(item => item.sourceRecord === sourceRecord);
+  const oldValue = row.values[colIndex];
+  if (oldValue === newValue) { showToast('The new value is identical to the existing value.', true); return; }
+  const change = { sourceRecord, colIndex, oldValue, newValue, method:'Manual edit', reason };
+  setPending({ kind:'manual', changes:[change], removals:[] });
+  $('manual-edit-preview').hidden = false;
+  $('manual-edit-preview').innerHTML = `<strong>Manual edit preview</strong><div class="preview-values"><div><span>Current value · record ${sourceRecord}</span>${escapeHTML(oldValue)}</div><div><span>Proposed value</span>${escapeHTML(newValue)}</div></div><p>Reason: ${escapeHTML(reason)}</p>`;
+  $('auto-clean-preview').hidden = true;
+});
+
+$('preview-auto-clean').addEventListener('click', () => {
+  if (!state.loaded) return;
+  const changes = [];
+  const previewRows = state.workingRows.map(row => ({ sourceRecord:row.sourceRecord, values:[...row.values] }));
+  previewRows.forEach(row => row.values.forEach((value, colIndex) => {
+    const trimmed = String(value ?? '').trim();
+    if (trimmed !== value) {
+      changes.push({ sourceRecord:row.sourceRecord, colIndex, oldValue:value, newValue:trimmed, method:'Automatic trim', reason:'Removed leading and trailing whitespace; no content was inferred.' });
+      row.values[colIndex] = trimmed;
+    }
+  }));
+  const seen = new Set();
+  const removals = [];
+  previewRows.forEach(row => {
+    const key = JSON.stringify(row.values);
+    if (seen.has(key)) removals.push({ sourceRecord:row.sourceRecord });
+    else seen.add(key);
+  });
+  if (!changes.length && !removals.length) {
+    setPending(null);
+    $('auto-clean-preview').hidden = false;
+    $('auto-clean-preview').innerHTML = '<strong>No changes proposed.</strong><p>No leading/trailing whitespace or exact duplicate records were found by this rule.</p>';
+    $('manual-edit-preview').hidden = true;
+    return;
+  }
+  setPending({ kind:'automatic', changes, removals });
+  $('auto-clean-preview').hidden = false;
+  $('auto-clean-preview').innerHTML = `<strong>Automatic cleanup preview</strong><p>${changes.length.toLocaleString()} cell value(s) would be trimmed. ${removals.length.toLocaleString()} later exact duplicate record(s) would be removed. No missing values are filled and no conflicting IDs are resolved.</p><p>Review the pending-change table below, then apply or discard the preview.</p>`;
+  $('manual-edit-preview').hidden = true;
+});
+
+$('apply-pending-changes').addEventListener('click', () => {
+  const pending = state.pending;
+  if (!pending) return;
+  const timestamp = new Date().toISOString();
+  pending.changes.forEach(change => {
+    const row = state.workingRows.find(item => item.sourceRecord === change.sourceRecord);
+    if (!row) return;
+    const actualOldValue = row.values[change.colIndex];
+    if (actualOldValue === change.newValue) return;
+    row.values[change.colIndex] = change.newValue;
+    state.changeLog.push({ timestamp, sourceRecord:change.sourceRecord, column:state.headers[change.colIndex], originalValue:actualOldValue, newValue:change.newValue, method:change.method, reason:change.reason });
+  });
+  pending.removals.forEach(removal => {
+    const index = state.workingRows.findIndex(row => row.sourceRecord === removal.sourceRecord);
+    if (index < 0) return;
+    const row = state.workingRows[index];
+    state.changeLog.push({ timestamp, sourceRecord:row.sourceRecord, column:'(entire record)', originalValue:JSON.stringify(row.values), newValue:'(removed from working data)', method:'Automatic duplicate removal', reason:'Removed later copy of an exact duplicate record after the whitespace-trimming preview.' });
+    state.workingRows.splice(index, 1);
+  });
+  const count = pending.changes.length + pending.removals.length;
+  state.pending = null;
+  $('manual-edit-preview').hidden = true;
+  $('auto-clean-preview').hidden = true;
+  $('edit-new-value').value = ''; $('edit-reason').value = '';
+  updateAll();
+  showToast(`Applied ${count.toLocaleString()} previewed change(s). Results recalculated.`);
+});
+$('discard-pending-changes').addEventListener('click', () => {
+  state.pending = null;
+  $('manual-edit-preview').hidden = true;
+  $('auto-clean-preview').hidden = true;
+  updatePendingUI();
+  showToast('Pending preview discarded. No data was changed.');
+});
+$('reset-to-original').addEventListener('click', () => {
+  if (!state.loaded) return;
+  if (!window.confirm('Reset all working data and applied corrections to the original imported values?')) return;
+  state.workingRows = state.originalRows.map(row => ({ sourceRecord:row.sourceRecord, values:[...row.values] }));
+  state.changeLog = []; state.pending = null;
+  $('manual-edit-preview').hidden = true; $('auto-clean-preview').hidden = true;
+  updateAll();
+  showToast('Working data reset to the original imported values.');
+});
+
+// Descriptive statistics. Population standard deviation divides by N.
+function medianOfSorted(sorted) {
+  if (!sorted.length) return null;
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+function modeOfValues(values) {
+  if (!values.length) return '—';
+  const counts = new Map();
+  values.forEach(value => counts.set(value, (counts.get(value) || 0) + 1));
+  const maxCount = Math.max(...counts.values());
+  if (maxCount === 1) return 'No mode';
+  const modes = [...counts.entries()].filter(([, count]) => count === maxCount).map(([value]) => value).sort((a,b) => a-b);
+  return modes.length > 4 ? `${modes.slice(0,4).map(value => formatNumber(value)).join(', ')} … (${modes.length} modes)` : modes.map(value => formatNumber(value)).join(', ');
+}
+function calculateStats(values) {
+  const nums = values.filter(Number.isFinite).slice().sort((a,b) => a-b);
+  const count = nums.length;
+  if (!count) return { count:0, total:null, mean:null, median:null, mode:'—', min:null, max:null, range:null, populationSD:null };
+  const total = nums.reduce((sum, value) => sum + value, 0);
+  const mean = total / count;
+  const variance = nums.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / count;
+  return {
+    count, total, mean, median:medianOfSorted(nums), mode:modeOfValues(nums),
+    min:nums[0], max:nums[nums.length - 1], range:nums[nums.length - 1] - nums[0],
+    populationSD:Math.sqrt(variance)
+  };
+}
+function inclusiveQuantile(sorted, probability) {
+  if (!sorted.length) return null;
+  if (sorted.length === 1) return sorted[0];
+  const position = (sorted.length - 1) * probability;
+  const lowerIndex = Math.floor(position);
+  const upperIndex = Math.ceil(position);
+  const fraction = position - lowerIndex;
+  return sorted[lowerIndex] + ((sorted[upperIndex] - sorted[lowerIndex]) * fraction);
+}
+function currentNumericAnalysis() {
+  const colIndex = Number($('numeric-column-select').value);
+  if (!Number.isInteger(colIndex) || colIndex < 0 || colIndex >= state.headers.length) return null;
+  const records = state.workingRows.map(row => ({ sourceRecord:row.sourceRecord, value:parseNumeric(row.values[colIndex]) })).filter(item => item.value !== null);
+  const values = records.map(item => item.value).sort((a,b) => a-b);
+  if (!values.length) return { colIndex, records, values, stats:calculateStats([]), inlierRecords:[], outliers:[], q1:null, median:null, q3:null, iqr:null, lowerFence:null, upperFence:null };
+  const q1 = inclusiveQuantile(values, .25);
+  const median = inclusiveQuantile(values, .5);
+  const q3 = inclusiveQuantile(values, .75);
+  const iqr = q3 - q1;
+  const lowerFence = q1 - (1.5 * iqr);
+  const upperFence = q3 + (1.5 * iqr);
+  const outliers = records.filter(item => item.value < lowerFence || item.value > upperFence);
+  const inlierRecords = records.filter(item => item.value >= lowerFence && item.value <= upperFence);
+  return { colIndex, records, values, stats:calculateStats(values), inlierRecords, outliers, q1, median, q3, iqr, lowerFence, upperFence };
+}
+function statCard(label, value, note = '') {
+  return `<div class="stat-card"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong>${note ? `<small>${escapeHTML(note)}</small>` : ''}</div>`;
+}
+function renderStatistics() {
+  if (!state.loaded) return;
+  const selected = $('numeric-column-select').value;
+  if (selected === '' || !$('numeric-column-select').options.length || $('numeric-column-select').selectedOptions[0]?.disabled) {
+    $('statistics-empty').hidden = false; $('statistics-content').hidden = true; return;
+  }
+  const result = currentNumericAnalysis();
+  if (!result || result.stats.count === 0) {
+    $('statistics-empty').hidden = false; $('statistics-empty').innerHTML = '<span class="empty-orbit">∑</span><h3>No valid numerical observations</h3><p>The selected column has no values that can be parsed as numbers. Review the suggested type and data-quality register.</p>';
+    $('statistics-content').hidden = true; return;
+  }
+  $('statistics-empty').hidden = true; $('statistics-content').hidden = false;
+  const s = result.stats;
+  $('stats-grid').innerHTML = [
+    statCard('Count', formatNumber(s.count, 0), 'valid numerical values'),
+    statCard('Total', formatNumber(s.total), 'sum of stored values'),
+    statCard('Mean', formatNumber(s.mean)),
+    statCard('Median', formatNumber(s.median)),
+    statCard('Mode', s.mode),
+    statCard('Minimum', formatNumber(s.min)),
+    statCard('Maximum', formatNumber(s.max)),
+    statCard('Range', formatNumber(s.range)),
+    statCard('Population SD', formatNumber(s.populationSD), 'divide squared deviations by N')
+  ].join('');
+  $('histogram-caption').textContent = `${state.headers[result.colIndex]} · n=${s.count}`;
+  $('fence-summary').innerHTML = [
+    ['Q1 · 25TH PERCENTILE', result.q1], ['MEDIAN · Q2', result.median], ['Q3 · 75TH PERCENTILE', result.q3], ['IQR', result.iqr],
+    ['LOWER FENCE', result.lowerFence], ['UPPER FENCE', result.upperFence], ['OUTLIER COUNT', result.outliers.length], ['INLIER COUNT', result.inlierRecords.length]
+  ].map(([label, value]) => `<div class="fence-item"><span>${escapeHTML(label)}</span><strong>${typeof value === 'number' ? formatNumber(value) : escapeHTML(value)}</strong></div>`).join('');
+  const inlierStats = calculateStats(result.inlierRecords.map(item => item.value));
+  const rows = [
+    ['Count', s.count, inlierStats.count, true], ['Total', s.total, inlierStats.total], ['Mean', s.mean, inlierStats.mean],
+    ['Median', s.median, inlierStats.median], ['Mode', s.mode, inlierStats.mode, true], ['Minimum', s.min, inlierStats.min],
+    ['Maximum', s.max, inlierStats.max], ['Range', s.range, inlierStats.range], ['Population standard deviation', s.populationSD, inlierStats.populationSD]
+  ];
+  $('comparison-table-body').innerHTML = rows.map(([label, all, within, raw]) => `<tr><td>${escapeHTML(label)}</td><td>${escapeHTML(raw ? all : formatNumber(all))}</td><td>${escapeHTML(raw ? within : formatNumber(within))}</td></tr>`).join('');
+  $('outlier-count-label').textContent = `${result.outliers.length} values beyond fences`;
+  const outlierRows = result.outliers.slice().sort((a,b) => a.value-b.value).slice(0, 250);
+  $('outlier-table-body').innerHTML = outlierRows.length ? outlierRows.map(item => `<tr><td>${item.sourceRecord}</td><td>${formatNumber(item.value)}</td><td>${item.value < result.lowerFence ? 'Below lower fence' : 'Above upper fence'}</td></tr>`).join('') : '<tr><td colspan="3" class="empty-state">No values fall outside the calculated fences.</td></tr>';
+  drawHistogram($('histogram-canvas'), result.values, result.outliers.map(item => item.value));
+  drawBoxPlot($('boxplot-canvas'), result);
+}
+function prepareCanvas(canvas, desiredHeight = 250) {
+  const width = Math.max(300, canvas.clientWidth || canvas.parentElement.clientWidth || 600);
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(desiredHeight * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, width, height:desiredHeight };
+}
+function drawHistogram(canvas, values, outlierValues) {
+  const {ctx, width, height} = prepareCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+  const pad = {left:48, right:15, top:18, bottom:43};
+  const chartW = width - pad.left - pad.right, chartH = height - pad.top - pad.bottom;
+  const minRaw = Math.min(...values), maxRaw = Math.max(...values);
+  const spread = maxRaw - minRaw;
+  const min = spread === 0 ? minRaw - .5 : minRaw;
+  const max = spread === 0 ? maxRaw + .5 : maxRaw;
+  const bins = Math.min(16, Math.max(5, Math.ceil(Math.sqrt(values.length))));
+  const counts = Array(bins).fill(0), outlierCounts = Array(bins).fill(0);
+  values.forEach(value => { const i = Math.min(bins-1, Math.max(0, Math.floor(((value-min)/(max-min))*bins))); counts[i]++; });
+  outlierValues.forEach(value => { const i = Math.min(bins-1, Math.max(0, Math.floor(((value-min)/(max-min))*bins))); outlierCounts[i]++; });
+  const maxCount = Math.max(1, ...counts);
+  ctx.strokeStyle = '#33465d'; ctx.lineWidth = 1;
+  for (let i=0;i<=4;i++) { const y=pad.top+(chartH*i/4); ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(width-pad.right,y);ctx.stroke();ctx.fillStyle='#8291a4';ctx.font='9px DM Mono, monospace';ctx.textAlign='right';ctx.fillText(String(Math.round(maxCount*(1-i/4))),pad.left-8,y+3); }
+  const gap = 4, barW = chartW/bins;
+  counts.forEach((count,i)=>{ const h=(count/maxCount)*(chartH-4); const x=pad.left+i*barW+gap/2; const y=pad.top+chartH-h; ctx.fillStyle=outlierCounts[i] ? '#d89b56' : '#6d94b4'; ctx.fillRect(x,y,Math.max(2,barW-gap),h); if(outlierCounts[i]){ctx.fillStyle='#ffd08a';ctx.fillRect(x,y,Math.max(2,barW-gap),3);} });
+  ctx.fillStyle='#8291a4';ctx.font='9px DM Mono, monospace';ctx.textAlign='center';
+  ctx.fillText(formatNumber(min,2),pad.left,pad.top+chartH+20);ctx.fillText(formatNumber(max,2),width-pad.right,pad.top+chartH+20);
+  ctx.fillText('Recorded value',pad.left+chartW/2,height-5);
+}
+function drawBoxPlot(canvas, result) {
+  const {ctx, width, height} = prepareCanvas(canvas);
+  ctx.clearRect(0,0,width,height);
+  const pad={left:38,right:25,top:35,bottom:45};
+  const chartW=width-pad.left-pad.right, y=112;
+  const min=Math.min(...result.values), max=Math.max(...result.values);
+  const spread=max-min || 1;
+  const scale=value=>pad.left+((value-min)/spread)*chartW;
+  ctx.strokeStyle='#30445d';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const x=pad.left+(chartW*i/4);ctx.beginPath();ctx.moveTo(x,35);ctx.lineTo(x,180);ctx.stroke();ctx.fillStyle='#8291a4';ctx.font='9px DM Mono, monospace';ctx.textAlign='center';ctx.fillText(formatNumber(min+(spread*i/4),2),x,202);}
+  const inlierValues=result.inlierRecords.map(item=>item.value);
+  const whiskerMin=inlierValues.length?Math.min(...inlierValues):result.q1;
+  const whiskerMax=inlierValues.length?Math.max(...inlierValues):result.q3;
+  ctx.strokeStyle='#9db4ca';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(scale(whiskerMin),y);ctx.lineTo(scale(whiskerMax),y);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(scale(whiskerMin),y-13);ctx.lineTo(scale(whiskerMin),y+13);ctx.moveTo(scale(whiskerMax),y-13);ctx.lineTo(scale(whiskerMax),y+13);ctx.stroke();
+  const boxLeft=scale(result.q1),boxRight=scale(result.q3);
+  ctx.fillStyle='rgba(217,168,95,.22)';ctx.strokeStyle='#e1b46f';ctx.lineWidth=2;ctx.fillRect(boxLeft,y-25,Math.max(2,boxRight-boxLeft),50);ctx.strokeRect(boxLeft,y-25,Math.max(2,boxRight-boxLeft),50);
+  ctx.strokeStyle='#fff0d2';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(scale(result.median),y-26);ctx.lineTo(scale(result.median),y+26);ctx.stroke();
+  result.outliers.forEach((item,index)=>{ctx.fillStyle='#f18e86';ctx.beginPath();ctx.arc(scale(item.value),y+((index%5)-2)*7,3.5,0,Math.PI*2);ctx.fill();});
+  ctx.fillStyle='#dbe3ed';ctx.font='10px DM Mono, monospace';ctx.textAlign='center';
+  // Avoid overlapping Q1 / median / Q3 labels when the box is narrow.
+  const quartileLabels = [
+    { label:'Q1', x:boxLeft },
+    { label:'Median', x:scale(result.median) },
+    { label:'Q3', x:boxRight }
+  ].sort((a,b) => a.x - b.x);
+  const placedLabels = [];
+  quartileLabels.forEach(item => {
+    const labelWidth = ctx.measureText(item.label).width;
+    let labelY = 65;
+    while (placedLabels.some(placed =>
+      placed.y === labelY &&
+      Math.abs(placed.x - item.x) < ((placed.width + labelWidth) / 2) + 8
+    )) labelY += 14;
+    ctx.fillText(item.label, item.x, labelY);
+    placedLabels.push({ x:item.x, y:labelY, width:labelWidth });
+  });
+  ctx.fillStyle='#8291a4';ctx.font='9px DM Mono, monospace';ctx.fillText(`${result.outliers.length} outlier(s) plotted in red`,width/2,height-8);
+}
+$('numeric-column-select').addEventListener('change', renderStatistics);
+window.addEventListener('resize', () => { if (state.loaded && $('panel-statistics').classList.contains('active')) renderStatistics(); });
+
+// Export helpers. CSV fields are quoted where required; downloads never overwrite the source file.
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return /[",\r\n]/.test(text) || /^\s|\s$/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+function makeCSV(headers, rows) {
+  return '\uFEFF' + [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');
+}
+function downloadText(fileName, text, type = 'text/csv;charset=utf-8;') {
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url; anchor.download = fileName; document.body.appendChild(anchor); anchor.click(); anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function renderChangeLog() {
+  $('log-count').textContent = `${state.changeLog.length.toLocaleString()} logged changes`;
+  const body = $('change-log-body');
+  if (!state.changeLog.length) {
+    body.innerHTML = '<tr><td colspan="6" class="empty-state">No changes recorded in this session.</td></tr>';
+    return;
+  }
+  body.innerHTML = state.changeLog.slice().reverse().slice(0, 300).map(entry => `<tr><td>${entry.sourceRecord}</td><td>${escapeHTML(entry.column)}</td><td>${escapeHTML(entry.originalValue)}</td><td>${escapeHTML(entry.newValue)}</td><td>${escapeHTML(entry.method)}</td><td>${escapeHTML(entry.reason)}</td></tr>`).join('');
+}
+function exportCleanedCSV() {
+  if (!state.loaded) return;
+  const seen = new Map();
+  const uniqueRows = [];
+  const exportDuplicates = [];
+  state.workingRows.forEach(row => {
+    const key = JSON.stringify(row.values);
+    if (seen.has(key)) exportDuplicates.push({row, first:seen.get(key)});
+    else { seen.set(key, row); uniqueRows.push(row); }
+  });
+  const timestamp = new Date().toISOString();
+  exportDuplicates.forEach(item => {
+    const reason = `Exact duplicate of source record ${item.first.sourceRecord}; first copy retained to ensure unique records.`;
+    const alreadyLogged = state.changeLog.some(entry =>
+      entry.method === 'Export-time exact duplicate removal' &&
+      entry.sourceRecord === item.row.sourceRecord &&
+      entry.reason === reason
+    );
+    if (!alreadyLogged) state.changeLog.push({
+      timestamp, sourceRecord:item.row.sourceRecord, column:'(entire record)', originalValue:JSON.stringify(item.row.values),
+      newValue:'(excluded from cleaned export)', method:'Export-time exact duplicate removal', reason
+    });
+  });
+  const csv = makeCSV(state.headers, uniqueRows.map(row => row.values));
+  const baseName = state.fileName.replace(/\.csv$/i, '') || 'dataset';
+  downloadText(`${baseName}_cleaned.csv`, csv);
+  renderChangeLog();
+  showToast(`Cleaned CSV exported with ${uniqueRows.length.toLocaleString()} unique records. ${exportDuplicates.length} duplicate row(s) were excluded from this export.`);
+}
+function exportChangeLog() {
+  if (!state.loaded) return;
+  const headers = ['Timestamp','SourceRecord','Column','OriginalValue','NewValue','Method','Reason'];
+  const rows = state.changeLog.map(entry => [entry.timestamp, entry.sourceRecord, entry.column, entry.originalValue, entry.newValue, entry.method, entry.reason]);
+  const baseName = state.fileName.replace(/\.csv$/i, '') || 'dataset';
+  downloadText(`${baseName}_change_log.csv`, makeCSV(headers, rows));
+  showToast(`Change log exported: ${rows.length.toLocaleString()} entries.`);
+}
+$('export-cleaned').addEventListener('click', exportCleanedCSV);
+$('export-log').addEventListener('click', exportChangeLog);
+
+// Initialize the empty workspace.
+setLoadedControls(false);
+$('system-status').textContent = 'LOCAL SYSTEM READY';
+$('footer-dataset').textContent = 'NO DATASET LOADED';
+
+</script>
+</body></html>
