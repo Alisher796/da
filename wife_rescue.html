@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wife Rescue — Stealth Strategy</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a1017;
+    --panel: #111c27;
+    --panel2: #172534;
+    --line: #2b4051;
+    --text: #e8f0f6;
+    --muted: #91a4b4;
+    --cyan: #54d9e8;
+    --red: #ff626e;
+    --gold: #f2c15a;
+    --green: #7ed6a4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at 20% 0%, #172838 0, var(--bg) 48%); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  body { padding: 20px; }
+  button { font: inherit; cursor: pointer; }
+  .app { max-width: 1430px; margin: 0 auto; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .brand-mark { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:#071419; background:linear-gradient(135deg,#73e4ed,#3aa8c2); font-weight:900; font-size:19px; box-shadow:0 8px 22px #33bfd333; }
+  .brand h1 { margin:0; letter-spacing:.11em; font-size:18px; }
+  .brand p { margin:2px 0 0; color:var(--muted); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+  .tag { border:1px solid var(--line); color:#b9c9d5; border-radius:999px; padding:7px 11px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .layout { display:grid; grid-template-columns:minmax(0, 1fr) 290px; gap:14px; align-items:start; }
+  .play-area { min-width:0; }
+  .hud-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:9px; }
+  .hud-card { background:linear-gradient(180deg,#162432,#101a24); border:1px solid var(--line); border-radius:11px; padding:9px 12px; min-height:57px; }
+  .hud-label { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+  .hud-value { font-size:20px; font-weight:760; margin-top:3px; font-variant-numeric:tabular-nums; }
+  .hud-value.small { font-size:15px; }
+  .canvas-wrap { position:relative; background:#0d1822; border:1px solid #344b5d; border-radius:14px; overflow:hidden; box-shadow:0 18px 50px #0005; }
+  canvas { display:block; width:100%; height:auto; aspect-ratio:10 / 7; image-rendering:auto; outline:none; }
+  .canvas-hint { position:absolute; left:12px; bottom:10px; padding:5px 8px; background:#071018bb; border:1px solid #ffffff18; border-radius:7px; color:#9fb1bf; font-size:10px; pointer-events:none; }
+  .sidebar { display:flex; flex-direction:column; gap:10px; }
+  .panel { background:linear-gradient(180deg,#152330,#101a24); border:1px solid var(--line); border-radius:12px; padding:13px; }
+  .panel h2 { margin:0 0 11px; color:#c9d8e3; font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+  .objective { font-size:14px; line-height:1.45; color:#e8f0f6; }
+  .subtle { color:var(--muted); font-size:11px; line-height:1.5; }
+  .legend { display:grid; grid-template-columns:1fr 1fr; gap:8px 6px; }
+  .legend-item { display:flex; align-items:center; gap:7px; color:#b8c8d4; font-size:11px; }
+  .dot { flex:0 0 10px; width:10px; height:10px; border-radius:50%; }
+  .dot.player { background:#55dbea; box-shadow:0 0 8px #55dbea88; }
+  .dot.guard { background:#ff6672; }
+  .dot.dog { background:#edbd55; }
+  .dot.camera { background:#bd9aff; }
+  .dot.wife { background:#ff9bc1; }
+  .dot.exit { background:#54d9e8; }
+  .keys { display:grid; grid-template-columns:auto 1fr; gap:7px 10px; align-items:center; font-size:11px; color:#aabcc9; }
+  kbd { display:inline-grid; min-width:27px; height:24px; place-items:center; padding:0 6px; border:1px solid #40586a; border-bottom-width:2px; border-radius:6px; color:#edf5fa; background:#1b2a37; font-size:10px; font-weight:800; }
+  .toast { position:absolute; top:12px; left:50%; transform:translateX(-50%) translateY(-8px); opacity:0; pointer-events:none; z-index:4; background:#07131ddd; border:1px solid #4a667b; color:#eaf5fb; border-radius:9px; padding:9px 14px; font-size:12px; box-shadow:0 10px 26px #0008; transition:opacity .2s, transform .2s; max-width:85%; text-align:center; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:#050a10d9; backdrop-filter:blur(8px); z-index:20; }
+  .overlay.show { display:flex; }
+  .modal { width:min(590px,100%); max-height:min(90vh,850px); overflow:auto; border:1px solid #395266; border-radius:18px; background:linear-gradient(145deg,#1a2b39,#0d1721 70%); padding:25px; box-shadow:0 28px 90px #000a; }
+  .modal.wide { width:min(760px,100%); }
+  .eyebrow { color:#65dce7; font-size:10px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
+  .modal h2 { margin:8px 0 10px; font-size:27px; letter-spacing:-.03em; }
+  .modal p { color:#b4c5d1; font-size:13px; line-height:1.6; }
+  .rule-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:17px 0; }
+  .rule { background:#0b1721a8; border:1px solid #2a4050; border-radius:10px; padding:11px; }
+  .rule strong { display:block; font-size:12px; color:#ecf5fa; margin-bottom:4px; }
+  .rule span { color:#9eb1bf; font-size:11px; line-height:1.45; display:block; }
+  .primary { border:0; border-radius:9px; background:linear-gradient(135deg,#67e0e8,#42b6ca); color:#06151a; font-weight:900; padding:12px 18px; box-shadow:0 8px 24px #45c7d333; }
+  .primary:hover { filter:brightness(1.08); }
+  .secondary { border:1px solid #3a5264; border-radius:9px; padding:11px 15px; background:#172735; color:#d9e6ee; font-weight:700; }
+  .button-row { display:flex; gap:9px; flex-wrap:wrap; margin-top:17px; }
+  .result-stat { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid #2b4050; font-size:12px; color:#9eb1bf; }
+  .result-stat strong { color:#edf5fa; font-variant-numeric:tabular-nums; }
+  .footer-note { margin-top:12px; text-align:center; color:#688090; font-size:10px; }
+  @media (max-width: 980px) { body { padding:12px; } .layout { grid-template-columns:1fr; } .sidebar { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .canvas-wrap { max-width:100%; } }
+  @media (max-width: 600px) { .hud-strip { grid-template-columns:repeat(2,minmax(0,1fr)); } .sidebar { grid-template-columns:1fr 1fr; } .panel { padding:10px; } .rule-grid { grid-template-columns:1fr; } .modal { padding:19px; } .modal h2 { font-size:22px; } .tag { display:none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">WR</div>
+      <div><h1>WIFE RESCUE</h1><p>Observe · Evade · Escape</p></div>
+    </div>
+    <div class="tag">A five-minute stealth mission</div>
+  </header>
+  <main class="layout">
+    <section class="play-area">
+      <div class="hud-strip">
+        <div class="hud-card"><div class="hud-label">Countdown</div><div class="hud-value" id="timer">05:00</div></div>
+        <div class="hud-card"><div class="hud-label">Location</div><div class="hud-value small" id="floorLabel">Floor 1 / 5</div></div>
+        <div class="hud-card"><div class="hud-label">Security sightings</div><div class="hud-value small" id="incidentLabel">0</div></div>
+        <div class="hud-card"><div class="hud-label">Mission status</div><div class="hud-value small" id="statusLabel">Ready</div></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="game" width="1000" height="700" tabindex="0" aria-label="Wife Rescue game map"></canvas>
+        <div class="toast" id="toast"></div>
+        <div class="canvas-hint">WASD / Arrows to move · E to interact</div>
+      </div>
+    </section>
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>Current objective</h2>
+        <div class="objective" id="objective">Infiltrate the building and reach the stairwell.</div>
+        <div class="subtle" id="objectiveHint" style="margin-top:7px">Watch patrols and camera sweeps before crossing open areas.</div>
+      </section>
+      <section class="panel">
+        <h2>Capture rules</h2>
+        <div class="subtle">Cameras and the rooftop searchlight can alert nearby guards, but they cannot capture you. You are caught only if a guard or trained dog physically reaches you (or your wife). The five-minute timer still applies.</div>
+      </section>
+      <section class="panel">
+        <h2>Map legend</h2>
+        <div class="legend">
+          <div class="legend-item"><i class="dot player"></i>Player</div>
+          <div class="legend-item"><i class="dot guard"></i>Guard</div>
+          <div class="legend-item"><i class="dot dog"></i>Trained dog</div>
+          <div class="legend-item"><i class="dot camera"></i>Camera</div>
+          <div class="legend-item"><i class="dot wife"></i>Wife</div>
+          <div class="legend-item"><i class="dot exit"></i>Doors / exits</div>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Controls</h2>
+        <div class="keys">
+          <kbd>W A S D</kbd><span>Move</span>
+          <kbd>↑ ↓ ← →</kbd><span>Move</span>
+          <kbd>E</kbd><span>Open doors / interact</span>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Field notes</h2>
+        <div class="subtle">Solid walls block sight. Guards use directional vision, dogs detect by proximity, and cameras sweep four directions. A camera alarm sends the nearest guard to investigate.</div>
+      </section>
+    </aside>
+  </main>
+  <div class="footer-note">WIFE RESCUE · Original browser stealth game · No combat, no checkpoints</div>
+</div>
+
+<div class="overlay show" id="startOverlay">
+  <div class="modal">
+    <div class="eyebrow">Mission briefing · 05:00 available</div>
+    <h2>Get her out. Get out together.</h2>
+    <p>A mafia boss is holding your wife on the fifth floor. His helicopter is waiting on the roof. Sneak through the building, avoid guards, dogs, and cameras, open locked doors with E, rescue your wife, and escape together. The five-minute timer never stops.</p>
+    <div class="rule-grid">
+      <div class="rule"><strong>Watch the patrols</strong><span>Guards follow repeating routes. Learn when they turn and cross behind them.</span></div>
+      <div class="rule"><strong>Open locked doors</strong><span>Walk close to a locked door and press E. No extra menus or tools are needed.</span></div>
+      <div class="rule"><strong>Avoid capture</strong><span>Cameras can alert nearby guards, but only physical contact with a guard or dog can catch you.</span></div>
+      <div class="rule"><strong>Escape together</strong><span>On Floor 5, enter through the open left-side passage or unlock the lower door. Press E beside your wife, then reach the rooftop helicopter.</span></div>
+    </div>
+    <p><strong>Controls:</strong> Move with WASD or the arrow keys. Press E near a locked door, your wife, a stairwell, or the helicopter. On Floor 5, enter through the open left-side passage or unlock the lower door.</p>
+    <div class="button-row"><button class="primary" id="startBtn">Start mission</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="resultOverlay">
+  <div class="modal">
+    <div class="eyebrow" id="resultEyebrow">Mission result</div>
+    <h2 id="resultTitle">Mission complete</h2>
+    <p id="resultCopy">You made it out together.</p>
+    <div id="resultStats"></div>
+    <div class="button-row"><button class="primary" id="restartBtn">Restart mission</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const TILE = 50, COLS = 20, ROWS = 14;
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    timer: $('timer'), floor: $('floorLabel'), incidents: $('incidentLabel'), status: $('statusLabel'),
+    objective: $('objective'), hint: $('objectiveHint'),
+    toast: $('toast'), start: $('startOverlay'), result: $('resultOverlay')
+  };
+
+  let game = null;
+  let keys = Object.create(null);
+  let toastTimer = 0;
+  let lastFrame = 0;
+  let uiAccumulator = 0;
+
+  const LEVEL_NAMES = ['Lobby entry', 'Security checkpoint', 'Kennel corridors', 'Restricted wing', 'Holding floor', 'Rooftop'];
+
+  function cellKey(x, y) { return `${x},${y}`; }
+  function inBounds(x, y) { return x >= 0 && y >= 0 && x < COLS && y < ROWS; }
+  function centerOf(p) { return { x: p.x, y: p.y }; }
+  function tileAt(x, y) { return { x: Math.floor(x), y: Math.floor(y) }; }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function sameCell(a, b) { return a && b && a.x === b.x && a.y === b.y; }
+
+  function makeFloor(level) {
+    const walls = new Set();
+    const addH = (y, x1, x2, gaps = []) => { for (let x=x1; x<=x2; x++) if (!gaps.includes(x)) walls.add(cellKey(x,y)); };
+    const addV = (x, y1, y2, gaps = []) => { for (let y=y1; y<=y2; y++) if (!gaps.includes(y)) walls.add(cellKey(x,y)); };
+    for (let x=0; x<COLS; x++) { walls.add(cellKey(x,0)); walls.add(cellKey(x,ROWS-1)); }
+    for (let y=0; y<ROWS; y++) { walls.add(cellKey(0,y)); walls.add(cellKey(COLS-1,y)); }
+
+    if (level === 1) {
+      addH(4,2,8,[5]); addV(10,2,10,[6]); addH(9,11,18,[15]); addV(5,6,11,[9]);
+    } else if (level === 2) {
+      addH(5,2,17,[4,14]); addV(7,2,12,[8]); addV(13,2,12,[4,9]); addH(10,8,12,[10]);
+    } else if (level === 3) {
+      addH(3,2,17,[3,10,16]); addH(7,2,17,[5,14]); addH(11,2,17,[4,10,16]);
+      addV(6,4,6,[5]); addV(13,4,6,[5]); addV(9,8,10,[9]);
+    } else if (level === 4) {
+      // Three full-width barriers with one aligned opening: the only route upward.
+      addH(3,1,18,[10]); addH(6,1,18,[10]); addH(9,1,18,[10]);
+      // The upper-left camera alcove is open through x=5,y=5; the right-hand
+      // wall is removed so the second camera is not trapped in a sealed pocket.
+      addV(5,4,8,[5,6]);
+      addV(5,10,12,[11]); addV(7,10,12,[11]); addV(13,10,12,[11]);
+    } else if (level === 5) {
+      addH(5,2,17,[5,15,16]); addH(9,2,17,[10]);
+      addV(6,6,8,[7]); addV(13,6,8,[7]);
+      // Holding room has two entrances: the locked lower door at (16,4)
+      // and an open side doorway through the west wall at (15,2).
+      addH(4,15,18,[16]); addV(15,1,3,[2]);
+    }
+
+    const gateDefs = {
+      1: { x:10, y:6, name:'Lobby security gate' },
+      2: { x:7, y:8, name:'Checkpoint shortcut gate' },
+      3: { x:10, y:7, name:'Kennel access gate' },
+      4: { x:10, y:6, name:'Restricted wing gate' },
+      5: { x:16, y:4, name:'Holding-room door' }
+    };
+    const gate = gateDefs[level];
+    const doors = new Map();
+    if (gate) {
+      walls.delete(cellKey(gate.x,gate.y));
+      doors.set(cellKey(gate.x,gate.y), { ...gate, open:false, mandatory: level===4 });
+    }
+    // The fifth-floor gate is the lower optional entrance; the side entrance remains open.
+
+    const exitPos = level === 4 ? [18,1] : [18,12];
+    const startPos = ({1:[1,1],2:[1,12],3:[1,1],4:[2,12],5:[1,12]})[level];
+    const floor = {
+      level, walls, doors, gate, gateOpen:false,
+      exit:{x:exitPos[0],y:exitPos[1]},
+      start:{x:startPos[0]+.5,y:startPos[1]+.5},
+      cameras:[], guards:[], dogs:[], wife:null, holdingDoorOpen:false,
+      sideEntrance: level===5 ? {x:15,y:2} : null,
+      investigation:null,
+      safeCells: level===4 ? [{x:4.5,y:10.5},{x:4.5,y:12.5}] : []
+    };
+    if (level===5) floor.wife={x:17.5,y:2.5};
+    return floor;
+  }
+
+  function isSolid(floor, tx, ty, opts={}) {
+    if (!inBounds(tx,ty)) return true;
+    const key = cellKey(tx,ty);
+    if (floor.walls.has(key)) return true;
+    const door = floor.doors.get(key);
+    if (door && !door.open) return true;
+    return false;
+  }
+
+  function canOccupy(floor, x, y, radius=.22, opts={}) {
+    const minX=Math.floor(x-radius), maxX=Math.floor(x+radius);
+    const minY=Math.floor(y-radius), maxY=Math.floor(y+radius);
+    for(let ty=minY;ty<=maxY;ty++) for(let tx=minX;tx<=maxX;tx++) {
+      if (isSolid(floor,tx,ty,opts)) return false;
+    }
+    if (opts.avoidEnemies && floor) {
+      const actors=[...floor.guards,...floor.dogs];
+      for(const e of actors) if(dist({x,y},e)<.56) return false;
+    }
+    return true;
+  }
+
+  function nearestWalkable(floor, point) {
+    const sx=clamp(Math.floor(point.x),1,COLS-2), sy=clamp(Math.floor(point.y),1,ROWS-2);
+    if (!isSolid(floor,sx,sy)) return {x:sx,y:sy};
+    for(let r=1;r<8;r++) for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++) {
+      const x=sx+dx,y=sy+dy;
+      if(inBounds(x,y)&&!isSolid(floor,x,y)) return {x,y};
+    }
+    return {x:1,y:1};
+  }
+
+  function findPath(floor, from, to) {
+    const start=nearestWalkable(floor,{x:Math.floor(from.x),y:Math.floor(from.y)});
+    const goal=nearestWalkable(floor,{x:Math.floor(to.x),y:Math.floor(to.y)});
+    const startKey=cellKey(start.x,start.y), goalKey=cellKey(goal.x,goal.y);
+    if(startKey===goalKey) return [goal];
+    const queue=[start], came=new Map([[startKey,null]]);
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    while(queue.length) {
+      const cur=queue.shift();
+      if(cellKey(cur.x,cur.y)===goalKey) break;
+      for(const [dx,dy] of dirs) {
+        const x=cur.x+dx,y=cur.y+dy,k=cellKey(x,y);
+        if(!inBounds(x,y)||isSolid(floor,x,y)||came.has(k)) continue;
+        came.set(k,cellKey(cur.x,cur.y)); queue.push({x,y});
+      }
+    }
+    if(!came.has(goalKey)) return [];
+    const path=[]; let k=goalKey;
+    while(k) { const [x,y]=k.split(',').map(Number); path.push({x,y}); k=came.get(k); }
+    return path.reverse();
+  }
+
+  function addGuard(floor, route, altRoute, speed=1.9) {
+    const first=route[0];
+    floor.guards.push({
+      x:first[0]+.5,y:first[1]+.5, homeRoute:route.map(p=>({x:p[0]+.5,y:p[1]+.5})),
+      routeIndex:0,
+      path:[], pathIndex:0, pathTarget:null, mode:'patrol', lastKnown:null, searchUntil:0,
+      speed, facing:{x:1,y:0}, moveClock:0, detectionEpisode:false, detectionClear:0,
+      investigationUntil:0, investigationPoint:null
+    });
+  }
+  function addDog(floor, route, speed=2.25) {
+    const first=route[0];
+    floor.dogs.push({
+      x:first[0]+.5,y:first[1]+.5, route:route.map(p=>({x:p[0]+.5,y:p[1]+.5})), routeIndex:0,
+      path:[],pathIndex:0,pathTarget:null,speed,mode:'patrol',lastKnown:null,
+      facing:{x:1,y:0},detectionEpisode:false,detectionClear:0
+    });
+  }
+  function addCamera(floor,x,y,offset=0,linkedGuard=0) {
+    floor.cameras.push({x:x+.5,y:y+.5,offset,dir:offset%4,scanClock:0,detectionEpisode:false,detectionClear:0});
+  }
+
+  function configureEnemies(floor) {
+    const L=floor.level;
+    if(L===1) {
+      addGuard(floor,[[3,2],[7,2],[8,7],[3,7]],[[3,2],[5,5],[8,5],[9,8],[4,8]],1.85);
+      addCamera(floor,8,2,0,0); addCamera(floor,15,8,2,0);
+    } else if(L===2) {
+      addGuard(floor,[[3,2],[5,3],[5,8],[3,11]],[[3,2],[4,6],[6,9],[3,11]],1.9);
+      addGuard(floor,[[10,2],[11,4],[16,4],[16,2]],[[10,2],[14,2],[15,4],[17,3]],1.85);
+      // Keep the third patrol on the inner checkpoint lane, not on the exit tile.
+      addGuard(floor,[[12,8],[14,8],[14,9],[10,9],[10,11]],[[12,8],[14,8],[13,9],[10,11]],1.85);
+      addCamera(floor,4,2,1,0); addCamera(floor,16,6,3,1);
+    } else if(L===3) {
+      addGuard(floor,[[3,1],[9,1],[15,1],[15,5],[10,5]],[[3,1],[8,1],[10,2],[16,2],[17,5]],1.95);
+      // This lower patrol stays in the central section and leaves the stairwell clear.
+      addGuard(floor,[[3,9],[5,9],[5,12],[11,12],[12,10],[9,9]],[[3,9],[7,9],[10,10],[12,10],[9,9]],1.85);
+      addDog(floor,[[8,2],[4,2],[9,5],[4,5]],2.2);
+      addDog(floor,[[11,2],[16,2],[16,6],[11,6]],2.3);
+      addDog(floor,[[3,8],[5,10],[8,10],[8,8]],2.25);
+      addDog(floor,[[12,8],[13,8],[13,10],[10,10]],2.2);
+      addCamera(floor,2,5,0,0); addCamera(floor,9,2,2,0); addCamera(floor,17,5,1,1); addCamera(floor,10,10,3,1);
+    } else if(L===4) {
+      // Three separated patrol zones leave the single central stairwell route
+      // open to timing and observation instead of permanently camping the exit.
+      addGuard(floor,[[8,10],[9,10],[9,12],[8,12]],[[8,10],[9,11],[8,12]],1.75);
+      addGuard(floor,[[14,7],[17,7],[17,8],[14,8]],[[14,7],[16,8],[17,7]],1.8);
+      addGuard(floor,[[2,1],[7,1],[7,2],[2,2]],[[2,1],[6,2],[2,2]],1.75);
+      addDog(floor,[[14,10],[17,10],[17,12],[14,12]],2.0);
+      addDog(floor,[[15,8],[17,8],[17,7],[15,7]],2.05);
+      addDog(floor,[[2,2],[6,2],[6,1],[2,1]],2.05);
+      addCamera(floor,4,5,0,0); addCamera(floor,13,5,2,1); addCamera(floor,12,11,1,2);
+    } else if(L===5) {
+      // Keep the entrance lane clear when the player arrives from Floor 4.
+      // This patrol now starts beyond immediate detection range and guards the
+      // central connector instead of standing beside the spawn point.
+      addGuard(floor,[[7,11],[8,10],[10,8],[11,7]],[[7,11],[9,10],[10,8],[12,7]],1.9);
+      addGuard(floor,[[11,2],[13,2],[14,2],[14,3]],[[11,2],[12,3],[14,3],[14,1]],1.9);
+      // The final-floor patrol guards the inner corridor without camping the stair exit.
+      addGuard(floor,[[14,7],[15,7],[15,8],[14,8]],[[14,7],[15,8],[14,8]],1.9);
+      // One trained dog remains on Floor 5; the lower-right second dog is removed
+      // to keep the final rescue challenging without overcrowding the approach.
+      addDog(floor,[[5,6],[8,6],[9,8],[5,8]],2.3);
+      addCamera(floor,4,2,0,0); addCamera(floor,10,4,2,1); addCamera(floor,17,6,1,1); addCamera(floor,8,11,3,2);
+    }
+    floor.guards.forEach((g,i)=>{g.id=`G${i+1}`;});
+    floor.dogs.forEach((d,i)=>{d.id=`D${i+1}`;});
+    floor.cameras.forEach((c,i)=>{c.id=`C${i+1}`;});
+  }
+
+  function makeRoof() {
+    const walls=new Set();
+    for(let x=0;x<COLS;x++){walls.add(cellKey(x,0));walls.add(cellKey(x,ROWS-1));}
+    for(let y=0;y<ROWS;y++){walls.add(cellKey(0,y));walls.add(cellKey(COLS-1,y));}
+    // Rooftop ventilation blocks create a pair of broad lanes, never a maze.
+    for(let x=4;x<=7;x++) walls.add(cellKey(x,4));
+    for(let y=5;y<=8;y++) walls.add(cellKey(12,y));
+    for(let x=14;x<=17;x++) walls.add(cellKey(x,9));
+    const floor={level:6,walls,doors:new Map(),gate:null,gateOpen:true,exit:null,start:{x:2.5,y:2.5},cameras:[],guards:[],dogs:[],wife:null,holdingDoorOpen:true,investigation:null,safeCells:[]};
+    addGuard(floor,[[4,2],[10,2],[10,10],[4,10]],[[4,10],[10,10],[10,2],[4,2]],2.0);
+    floor.guards[0].id='G1';
+    floor.searchlight={x:15.5,y:2.5,dir:2,scanClock:0,detectionEpisode:false,detectionClear:0};
+    floor.helicopter={x:17.1,y:12.1};
+    return floor;
+  }
+
+  function newGame() {
+    game={
+      state:'title',timeLeft:300,detections:0,doorsOpened:0,
+      floorIndex:1,floor:null,player:null,wifeRescued:false,wife:null,trail:[],trailAccumulator:0,
+      elapsed:0,toast:'',
+      startTime:null,finishTime:null,lastDetectionText:'',floorTransitions:0,
+      sourcesDetected:new Set(),
+    };
+    loadFloor(1);
+    updateHud();
+  }
+
+  function loadFloor(level) {
+    game.floorIndex=level;
+    game.floor = level===6 ? makeRoof() : makeFloor(level);
+    if(level!==6) configureEnemies(game.floor);
+    const start=game.floor.start;
+    game.player={x:start.x,y:start.y,facing:{x:1,y:0},speed:3.5};
+    if(game.wifeRescued && game.wife) {
+      // Wife accompanies the player during transitions and is placed close behind on a walkable tile.
+      let candidates=[[Math.floor(start.x)-1,Math.floor(start.y)],[Math.floor(start.x),Math.floor(start.y)+1],[Math.floor(start.x)+1,Math.floor(start.y)],[Math.floor(start.x),Math.floor(start.y)-1]];
+      let spot=candidates.find(([x,y])=>!isSolid(game.floor,x,y));
+      if(spot) {game.wife.x=spot[0]+.5;game.wife.y=spot[1]+.5;}
+      else {game.wife.x=start.x;game.wife.y=start.y;}
+      game.wife.path=[]; game.wife.pathIndex=0;
+      game.trail=[{x:game.wife.x,y:game.wife.y},{x:game.player.x,y:game.player.y}];
+    }
+    if(level===6) {
+      setObjective('Reach the helicopter with your wife.','Avoid the patrol guard and rotating rooftop searchlight. Press E beside the helicopter when both of you are close.');
+      notify('Rooftop reached. The helicopter is in sight.');
+    } else if(level===5) {
+      setObjective('Enter the holding room and rescue your wife.','Use the open side entrance on the left, or unlock the lower door with E. Then approach your wife and press E.');
+      notify('Floor 5 reached. The holding room has a side entrance and a locked lower door.');
+    } else {
+      setObjective(`Reach the exit to Floor ${level+1}.`,`Watch the patrols. Press E beside locked doors to open the way forward.`);
+      if(level>1) notify(`Floor ${level} reached: ${LEVEL_NAMES[level-1]}.`);
+    }
+    game.floorTransitions++;
+    updateHud();
+  }
+
+  function setObjective(main, hint) { ui.objective.textContent=main; ui.hint.textContent=hint; }
+  function formatTime(seconds) {
+    const s=Math.max(0,Math.ceil(seconds));
+    return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  }
+  function updateHud() {
+    if(!game) return;
+    ui.timer.textContent=formatTime(game.timeLeft);
+    ui.floor.textContent=game.floorIndex===6?'Rooftop':`Floor ${game.floorIndex} / 5`;
+    ui.incidents.textContent=String(game.detections);
+    ui.status.textContent=game.state==='playing'?'Infiltrating':game.state==='won'?'Escaped':game.state==='lost'?'Failed':'Ready';
+  }
+  function notify(message) {
+    ui.toast.textContent=message;
+    ui.toast.classList.add('show');
+    toastTimer=2.5;
+  }
+
+  function startMission() {
+    newGame();
+    game.state='playing';
+    game.startTime=performance.now();
+    ui.start.classList.remove('show');
+    notify('Mission started. Five minutes. Avoid guards and dogs.');
+    canvas.focus();
+    lastFrame=performance.now();
+    requestAnimationFrame(loop);
+  }
+
+  function lose(reason) {
+    if(game.state!=='playing') return;
+    game.state='lost'; game.finishTime=performance.now();
+    $('resultEyebrow').textContent='Mission failed';
+    $('resultTitle').textContent='You were caught.';
+    $('resultCopy').textContent=reason;
+    showResult();
+    updateHud();
+  }
+  function win() {
+    if(game.state!=='playing') return;
+    game.state='won'; game.finishTime=performance.now();
+    $('resultEyebrow').textContent='Mission complete';
+    $('resultTitle').textContent='You escaped together.';
+    $('resultCopy').textContent='Your wife is safe. The helicopter lifted off before the five-minute deadline.';
+    showResult(); updateHud();
+  }
+  function showResult() {
+    const spent=300-game.timeLeft;
+    const stats=[
+      ['Completion time',game.state==='won'?formatTime(spent):formatTime(spent)],
+      ['Security sightings',String(game.detections)],
+      ['Doors opened',String(game.doorsOpened)],
+      ['Floors reached',`${Math.min(game.floorIndex,5)} / 5`]
+    ];
+    $('resultStats').innerHTML=stats.map(([a,b])=>`<div class="result-stat"><span>${a}</span><strong>${b}</strong></div>`).join('');
+    ui.result.classList.add('show');
+  }
+
+  function lineClear(floor,a,b) {
+    const dx=b.x-a.x,dy=b.y-a.y;
+    const steps=Math.ceil(Math.hypot(dx,dy)*10);
+    for(let i=1;i<steps;i++) {
+      const t=i/steps, x=a.x+dx*t,y=a.y+dy*t;
+      if(isSolid(floor,Math.floor(x),Math.floor(y))) return false;
+    }
+    return true;
+  }
+  function angleFacing(facing,target,origin) {
+    const dx=target.x-origin.x,dy=target.y-origin.y,len=Math.hypot(dx,dy)||1;
+    return (facing.x*dx+facing.y*dy)/len;
+  }
+  const DIRS=[{x:1,y:0},{x:0,y:1},{x:-1,y:0},{x:0,y:-1}];
+
+  function moveToward(entity,target,speed,dt,floor,avoidPlayer=false) {
+    if(!target) return false;
+    const dx=target.x-entity.x,dy=target.y-entity.y,d=Math.hypot(dx,dy);
+    if(d<.045) {entity.x=target.x;entity.y=target.y;return true;}
+    const step=Math.min(d,speed*dt),vx=dx/d*step,vy=dy/d*step;
+    const nx=entity.x+vx,ny=entity.y+vy;
+    if(canOccupy(floor,nx,ny,.20)) {entity.x=nx;entity.y=ny;}
+    else {
+      // Axis-separated collision lets patrols slide along walls without clipping through them.
+      if(canOccupy(floor,nx,entity.y,.20)) entity.x=nx;
+      else if(canOccupy(floor,entity.x,ny,.20)) entity.y=ny;
+      else return false;
+    }
+    if(Math.abs(vx)+Math.abs(vy)>.0001) entity.facing={x:Math.abs(vx)>Math.abs(vy)?Math.sign(vx):0,y:Math.abs(vy)>=Math.abs(vx)?Math.sign(vy):0};
+    return Math.hypot(target.x-entity.x,target.y-entity.y)<.07;
+  }
+
+  function assignPath(entity,floor,target) {
+    const current={x:Math.floor(entity.x),y:Math.floor(entity.y)};
+    const dest={x:Math.floor(target.x),y:Math.floor(target.y)};
+    if(entity.pathTarget && sameCell(entity.pathTarget,dest) && entity.path && entity.pathIndex<entity.path.length) return;
+    const path=findPath(floor,current,dest);
+    entity.path=path.map(p=>({x:p.x+.5,y:p.y+.5}));
+    entity.pathIndex=0;
+    entity.pathTarget=dest;
+  }
+  function followPath(entity,floor,dt,speed) {
+    if(!entity.path || entity.pathIndex>=entity.path.length) return true;
+    const target=entity.path[entity.pathIndex];
+    const arrived=moveToward(entity,target,speed,dt,floor);
+    if(arrived) entity.pathIndex++;
+    return entity.pathIndex>=entity.path.length;
+  }
+
+  function routeStep(entity,floor,dt,route,speed) {
+    if(!route || !route.length) return;
+    const target=route[entity.routeIndex%route.length];
+    if(!entity.routeTarget || !sameCell(entity.routeTarget,tileAt(target.x,target.y))) {
+      entity.routeTarget=tileAt(target.x,target.y); entity.path=[]; entity.pathIndex=0;
+    }
+    if(!entity.path || entity.pathIndex>=entity.path.length) {
+      const path=findPath(floor,{x:entity.x,y:entity.y},target);
+      entity.path=path.map(p=>({x:p.x+.5,y:p.y+.5})); entity.pathIndex=0;
+    }
+    const done=followPath(entity,floor,dt,speed);
+    if(done) {entity.routeIndex=(entity.routeIndex+1)%route.length;entity.path=[];entity.pathIndex=0;entity.routeTarget=null;}
+  }
+
+  function getGuardDetection(guard, target, floor) {
+    const d=dist(guard,target);
+    return d<=4.2 && angleFacing(guard.facing,target,guard)>.53 && lineClear(floor,guard,target);
+  }
+  function getDogDetection(dog,target,floor) {
+    return dist(dog,target)<=4.6 && lineClear(floor,dog,target);
+  }
+  function cameraFacing(cam,missionSeconds) {
+    return DIRS[(Math.floor((missionSeconds+cam.offset*0.7)/1.1))%4];
+  }
+  function getCameraDetection(cam,target,now,floor) {
+    const facing=cameraFacing(cam,now,floor);
+    if(!facing) return false;
+    const d=dist(cam,target);
+    return d<=5.2 && angleFacing(facing,target,cam)>.68 && lineClear(floor,cam,target);
+  }
+  function targetList() {
+    const result=[{kind:'player',actor:game.player}];
+    if(game.wifeRescued && game.wife) result.push({kind:'wife',actor:game.wife});
+    return result;
+  }
+  function sourceTargets(source,checker,now,floor) {
+    const targets=targetList();
+    for(const t of targets) if(checker(source,t.actor,now,floor)) return t;
+    return null;
+  }
+  function triggerEpisode(source, label) {
+    // A detection is a warning only. Cameras and searchlights can summon guards,
+    // but only physical contact with a guard or dog can end the mission.
+    if(!source.detectionEpisode) {
+      source.detectionEpisode=true; source.detectionClear=0;
+      game.detections++;
+      notify(`${label} spotted ${game.wifeRescued?'you and your wife':'you'}! Keep moving.`);
+    }
+  }
+  function updateEpisodeClear(source,detected,dt) {
+    if(detected) source.detectionClear=0;
+    else if(source.detectionEpisode) {
+      source.detectionClear+=dt;
+      if(source.detectionClear>=3) {source.detectionEpisode=false;source.detectionClear=0;}
+    }
+  }
+
+  function nearestGuard(floor,point) {
+    let best=null,bd=Infinity;
+    floor.guards.forEach((g,i)=>{const d=dist(g,point);if(d<bd){bd=d;best={guard:g,index:i};}});
+    return best;
+  }
+  function alarmAt(floor,point,now,label='Camera') {
+    const nearest=nearestGuard(floor,point);
+    if(nearest) {
+      nearest.guard.mode='investigate';
+      nearest.guard.investigationPoint={x:point.x,y:point.y};
+      nearest.guard.investigationUntil=now+6000;
+      nearest.guard.path=[]; nearest.guard.pathIndex=0;
+      notify(`${label} alarm: nearest guard is investigating.`);
+    }
+  }
+
+  function updateGuardAI(guard,index,floor,dt,now,detectedPlayer) {
+    if(detectedPlayer) {
+      guard.mode='chase';
+      guard.lastKnown={x:detectedPlayer.x,y:detectedPlayer.y};
+      guard.searchUntil=now+2300;
+      if(now-(guard.lastPathUpdate||0)>300 || !guard.path || guard.pathIndex>=guard.path.length) {
+        assignPath(guard,floor,guard.lastKnown);
+        guard.lastPathUpdate=now;
+      }
+      followPath(guard,floor,dt,guard.speed*1.18);
+      return;
+    }
+
+    // Losing sight begins a short, finite search. Guards then return home rather
+    // than remaining stuck in search mode forever.
+    if(guard.mode==='chase') {
+      guard.mode='search';
+      guard.searchUntil=now+1900;
+      guard.path=[];
+      guard.pathIndex=0;
+    }
+    if(guard.mode==='search') {
+      if(now>=guard.searchUntil) {
+        guard.mode='return';
+        guard.lastKnown=null;
+        guard.path=[];
+        guard.pathIndex=0;
+      } else {
+        if(!guard.path || guard.pathIndex>=guard.path.length) {
+          assignPath(guard,floor,guard.lastKnown||guard.homeRoute[guard.routeIndex%guard.homeRoute.length]);
+        }
+        followPath(guard,floor,dt,guard.speed*.9);
+        return;
+      }
+    }
+
+    if(guard.mode==='investigate') {
+      if(now<guard.investigationUntil && guard.investigationPoint) {
+        assignPath(guard,floor,guard.investigationPoint);
+        followPath(guard,floor,dt,guard.speed*1.05);
+        return;
+      }
+      guard.mode='return';
+      guard.investigationPoint=null;
+      guard.path=[];
+      guard.pathIndex=0;
+    }
+
+    if(guard.mode==='return') {
+      const home=guard.homeRoute[guard.routeIndex%guard.homeRoute.length];
+      assignPath(guard,floor,home);
+      const done=followPath(guard,floor,dt,guard.speed);
+      if(done) {
+        guard.mode='patrol';
+        guard.path=[];
+        guard.pathIndex=0;
+      }
+      return;
+    }
+
+    routeStep(guard,floor,dt,guard.homeRoute,guard.speed);
+  }
+
+  function updateEnemySystems(dt,now) {
+    const floor=game.floor;
+    const targets=targetList();
+    floor.guards.forEach((g,i)=>{
+      let detection=null;
+      for(const t of targets) if(getGuardDetection(g,t.actor,floor)){detection=t;break;}
+      if(detection) {
+        triggerEpisode(g,`Guard ${g.id}`);
+        g.lastKnown={x:detection.actor.x,y:detection.actor.y};
+      }
+      updateEpisodeClear(g,!!detection,dt);
+      updateGuardAI(g,i,floor,dt,now,detection?detection.actor:null);
+      for(const t of targets) if(dist(g,t.actor)<.42) { lose(t.kind==='wife'?'A guard caught your wife.':'A guard caught you.'); return; }
+    });
+    floor.dogs.forEach(d=>{
+      let detection=null;
+      for(const t of targets) if(getDogDetection(d,t.actor,floor)){detection=t;break;}
+      if(detection) {
+        triggerEpisode(d,`Dog ${d.id}`);
+        d.mode='chase'; d.lastKnown={x:detection.actor.x,y:detection.actor.y};
+      } else if(d.mode==='chase') d.mode='search';
+      updateEpisodeClear(d,!!detection,dt);
+      if(d.mode==='chase' && d.lastKnown) {
+        if(now-(d.lastPathUpdate||0)>280 || !d.path || d.pathIndex>=d.path.length) {assignPath(d,floor,d.lastKnown);d.lastPathUpdate=now;}
+        followPath(d,floor,dt,d.speed*1.15);
+      } else if(d.mode==='search' && d.lastKnown) {
+        assignPath(d,floor,d.lastKnown); followPath(d,floor,dt,d.speed);
+        if(dist(d,d.lastKnown)<.35) {d.mode='patrol';d.lastKnown=null;d.path=[];}
+      } else routeStep(d,floor,dt,d.route,d.speed);
+      for(const t of targets) if(dist(d,t.actor)<.42) {lose(t.kind==='wife'?'A trained dog caught your wife.':'A trained dog caught you.');return;}
+    });
+    floor.cameras.forEach(c=>{
+      let detection=null;
+      for(const t of targets) if(getCameraDetection(c,t.actor,game.elapsed,floor)){detection=t;break;}
+      if(detection) {
+        triggerEpisode(c,`Camera ${c.id}`);
+        if(!c.alarmSent || now-c.lastAlarm>4500) {alarmAt(floor,c,now,'Camera');c.alarmSent=true;c.lastAlarm=now;}
+      }
+      updateEpisodeClear(c,!!detection,dt);
+    });
+    if(floor.searchlight) {
+      const s=floor.searchlight;
+      s.scanClock+=dt;
+      if(s.scanClock>1.05){s.scanClock=0;s.dir=(s.dir+1)%4;}
+      const facing=DIRS[s.dir];
+      let detection=null;
+      for(const t of targets) {
+        if(dist(s,t.actor)<=5.5 && angleFacing(facing,t.actor,s)>.7 && lineClear(floor,s,t.actor)){detection=t;break;}
+      }
+      if(detection) {
+        triggerEpisode(s,'Rooftop searchlight');
+        if(!s.alarmSent || now-s.lastAlarm>4500){alarmAt(floor,s,now,'Searchlight');s.alarmSent=true;s.lastAlarm=now;}
+      }
+      updateEpisodeClear(s,!!detection,dt);
+    }
+  }
+
+  function movePlayer(dt) {
+    const floor=game.floor;
+    let dx=0,dy=0;
+    if(keys['w']||keys['arrowup']) dy-=1;
+    if(keys['s']||keys['arrowdown']) dy+=1;
+    if(keys['a']||keys['arrowleft']) dx-=1;
+    if(keys['d']||keys['arrowright']) dx+=1;
+    if(dx===0&&dy===0) return;
+    const mag=Math.hypot(dx,dy);dx/=mag;dy/=mag;
+    const p=game.player; p.facing={x:Math.abs(dx)>Math.abs(dy)?Math.sign(dx):0,y:Math.abs(dy)>=Math.abs(dx)?Math.sign(dy):0};
+    const step=p.speed*dt,nx=p.x+dx*step,ny=p.y+dy*step;
+    if(canOccupy(floor,nx,p.y,.22,{avoidEnemies:true})) p.x=nx;
+    if(canOccupy(floor,p.x,ny,.22,{avoidEnemies:true})) p.y=ny;
+    if(game.wifeRescued) {
+      const moved=Math.hypot(p.x-game.lastTrailPoint.x,p.y-game.lastTrailPoint.y);
+      if(moved>=.22) {game.trail.push({x:p.x,y:p.y});game.lastTrailPoint={x:p.x,y:p.y};}
+    }
+  }
+
+  function updateWife(dt) {
+    if(!game.wifeRescued || !game.wife) return;
+    const w=game.wife;
+    if(!game.trail || !game.trail.length) return;
+    // Trail points are generated only from player movement, so the follower retraces a known safe path.
+    while(game.trail.length>1 && dist(w,game.trail[0])<.19) game.trail.shift();
+    const target=game.trail[0];
+    if(target) moveToward(w,target,4.45,dt,game.floor);
+  }
+
+  function nearestInteractable() {
+    const f=game.floor,p=game.player;
+    const opts=[];
+    if(f.gate && !f.gateOpen) opts.push({type:'door',pos:{x:f.gate.x+.5,y:f.gate.y+.5},label:f.gate.name});
+    if(f.exit) opts.push({type:'exit',pos:{x:f.exit.x+.5,y:f.exit.y+.5},label:game.floorIndex===4?'Stairwell to Floor 5':game.floorIndex===5?'Rooftop access':'Stairwell'});
+    if(game.floorIndex===5 && !game.wifeRescued && f.wife) opts.push({type:'wife',pos:{x:f.wife.x,y:f.wife.y},label:'Your wife'});
+    if(game.floorIndex===6) opts.push({type:'helicopter',pos:f.helicopter,label:'Helicopter'});
+    return opts.sort((a,b)=>dist(p,a.pos)-dist(p,b.pos))[0] || null;
+  }
+  function interact() {
+    if(game.state!=='playing') return;
+    const near=nearestInteractable();
+    if(!near || dist(game.player,near.pos)>1.05) {notify('Nothing within reach.');return;}
+    if(near.type==='door') {
+      const f=game.floor;
+      if(!f.gate || f.gateOpen) return;
+      f.gateOpen=true;
+      const door=f.doors.get(cellKey(f.gate.x,f.gate.y));
+      if(door) door.open=true;
+      game.doorsOpened++;
+      if(game.floorIndex===5) notify('Holding-room door opened. Go rescue your wife!');
+      else notify(`${f.gate.name} opened. Move through to continue.`);
+      return;
+    }
+    if(near.type==='exit') {
+      if(game.floorIndex===5 && !game.wifeRescued) {notify('Your wife is still inside. Rescue her before leaving.');return;}
+      const next=game.floorIndex+1;
+      if(next<=6) loadFloor(next);
+      return;
+    }
+    if(near.type==='wife') {
+      // Reaching the wife proves the player entered through either the open
+      // side passage or the unlocked lower door.
+      game.wifeRescued=true;
+      const wifePos={x:game.floor.wife.x,y:game.floor.wife.y};
+      game.wife={x:wifePos.x,y:wifePos.y,facing:{x:-1,y:0}};
+      // The first breadcrumb guides her from the holding room toward the player.
+      const path=findPath(game.floor,wifePos,game.player).map(p=>({x:p.x+.5,y:p.y+.5}));
+      game.trail=path.length?path:[{x:game.player.x,y:game.player.y}];
+      game.lastTrailPoint={x:game.player.x,y:game.player.y};
+      setObjective('Escort your wife to the rooftop helicopter.','Stay ahead and let her follow your footsteps. Both characters must reach the helicopter.');
+      notify('Wife rescued. She is following you—get to the rooftop!');
+      return;
+    }
+    if(near.type==='helicopter') {
+      if(!game.wifeRescued || !game.wife) {notify('You cannot leave without your wife.');return;}
+      const closePlayer=dist(game.player,near.pos)<1.0;
+      const closeWife=dist(game.wife,near.pos)<1.6;
+      if(closePlayer&&closeWife) win();
+      else notify('Wait for your wife to reach the helicopter, then press E together.');
+    }
+  }
+
+  function drawFloor(floor) {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const bg=ctx.createLinearGradient(0,0,1000,700); bg.addColorStop(0,'#142431');bg.addColorStop(1,'#0b141d');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,1000,700);
+    // Floor tiles and understated grid.
+    for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) {
+      const px=x*TILE,py=y*TILE;
+      ctx.fillStyle=((x+y)%2===0)?'#172631':'#15232e';ctx.fillRect(px,py,TILE,TILE);
+      ctx.strokeStyle='#263846';ctx.lineWidth=.7;ctx.strokeRect(px+.5,py+.5,TILE,TILE);
+    }
+    // Patrol route hints.
+    floor.guards.forEach(g=>drawRoute(g.homeRoute,'#e7788040'));
+    floor.dogs.forEach(d=>drawRoute(d.route,'#e8bf5b25'));
+    floor.walls.forEach(k=>{
+      const [x,y]=k.split(',').map(Number); drawWall(x,y);
+    });
+    if(floor.safeCells) floor.safeCells.forEach(c=>{
+      ctx.fillStyle='#60d4a411';ctx.fillRect(c.x*TILE,c.y*TILE,TILE,TILE);
+      ctx.strokeStyle='#60d4a455';ctx.setLineDash([4,4]);ctx.strokeRect(c.x*TILE+4,c.y*TILE+4,TILE-8,TILE-8);ctx.setLineDash([]);
+    });
+    // Door(s) drawn above wall layer.
+    floor.doors.forEach(d=>drawDoor(d));
+    if(floor.sideEntrance) drawSideEntrance(floor.sideEntrance);
+    if(floor.exit) drawExit(floor.exit);
+    if(floor.level===5 && floor.wife && !game.wifeRescued) drawWifeMarker(floor.wife);
+    if(floor.helicopter) drawHelicopter(floor.helicopter);
+    // Cameras and their sight cones.
+    floor.cameras.forEach(c=>drawCamera(c,floor));
+    if(floor.searchlight) drawSearchlight(floor.searchlight,floor);
+    // Detection radii are deliberately subtle but legible.
+    floor.dogs.forEach(d=>{ctx.beginPath();ctx.arc(d.x*TILE,d.y*TILE,4.6*TILE,0,Math.PI*2);ctx.fillStyle='#eac05b08';ctx.fill();ctx.strokeStyle='#eac05b32';ctx.lineWidth=1;ctx.setLineDash([3,7]);ctx.stroke();ctx.setLineDash([]);});
+    floor.guards.forEach(g=>drawGuard(g));
+    floor.dogs.forEach(d=>drawDog(d));
+    if(game.wifeRescued && game.wife) drawWife(game.wife);
+    drawPlayer(game.player);
+    // Interact prompt.
+    const near=nearestInteractable();
+    if(game.state==='playing' && near && dist(game.player,near.pos)<1.05) {
+      const x=game.player.x*TILE,y=(game.player.y-0.55)*TILE;
+      ctx.font='bold 12px system-ui';ctx.textAlign='center';
+      const text=`E  ${near.label}`;const w=ctx.measureText(text).width+20;
+      roundRect(ctx,x-w/2,y-16,w,25,7,'#07121ddd','#5a8093');ctx.fillStyle='#edf9ff';ctx.fillText(text,x,y+1);
+    }
+  }
+  function roundRect(c,x,y,w,h,r,fill,stroke) {
+    c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();
+    if(fill){c.fillStyle=fill;c.fill();} if(stroke){c.strokeStyle=stroke;c.lineWidth=1.2;c.stroke();}
+  }
+  function drawWall(x,y) {
+    const px=x*TILE,py=y*TILE;
+    const g=ctx.createLinearGradient(px,py,px+TILE,py+TILE);g.addColorStop(0,'#3b5262');g.addColorStop(1,'#263845');
+    ctx.fillStyle=g;ctx.fillRect(px+1,py+1,TILE-2,TILE-2);
+    ctx.strokeStyle='#536c7d';ctx.lineWidth=1;ctx.strokeRect(px+3,py+3,TILE-6,TILE-6);
+    ctx.fillStyle='#60788755';ctx.fillRect(px+5,py+5,TILE-10,4);
+  }
+  function drawSideEntrance(p) {
+    const x=p.x*TILE,y=p.y*TILE;
+    ctx.save();
+    ctx.strokeStyle='#67dce8';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+    ctx.strokeRect(x+8,y+8,TILE-16,TILE-16);ctx.setLineDash([]);
+    ctx.fillStyle='#a9f4fa';ctx.font='bold 7px system-ui';ctx.textAlign='center';
+    ctx.fillText('SIDE',x+TILE/2,y+TILE-7);
+    ctx.restore();
+  }
+  function drawDoor(d) {
+    const x=d.x*TILE,y=d.y*TILE;
+    ctx.fillStyle=d.open?'#2f785a':'#a76a36';ctx.fillRect(x+5,y+5,TILE-10,TILE-10);
+    ctx.strokeStyle=d.open?'#7fe0ab':'#f1c27a';ctx.lineWidth=2;ctx.strokeRect(x+5,y+5,TILE-10,TILE-10);
+    ctx.fillStyle='#09131b';ctx.beginPath();ctx.arc(x+TILE/2+9,y+TILE/2,3,0,Math.PI*2);ctx.fill();
+    ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillStyle=d.open?'#bdf5d4':'#ffe1a9';ctx.fillText(d.open?'OPEN':'LOCK',x+TILE/2,y+TILE-7);
+  }
+  function drawExit(p) {
+    const x=(p.x+.5)*TILE,y=(p.y+.5)*TILE;
+    ctx.save();ctx.translate(x,y);ctx.shadowColor='#63ddec';ctx.shadowBlur=14;
+    roundRect(ctx,-16,-17,32,34,6,'#164455','#72e5f0');ctx.shadowBlur=0;
+    ctx.fillStyle='#c4faff';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('EXIT',0,4);ctx.restore();
+  }
+  function drawRoute(route,color) {
+    if(!route||route.length<2)return;
+    ctx.beginPath();route.forEach((p,i)=>{const x=(p.x)*TILE,y=(p.y)*TILE;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([5,7]);ctx.stroke();ctx.setLineDash([]);
+  }
+  function drawVision(origin,dir,radius,halfAngle,color,floor) {
+    if(!dir)return;
+    const angle=Math.atan2(dir.y,dir.x);
+    const steps=32;
+    const rayEnd=(a)=>{
+      let visible=radius;
+      for(let d=.12;d<=radius;d+=.12) {
+        const tx=Math.floor(origin.x+Math.cos(a)*d);
+        const ty=Math.floor(origin.y+Math.sin(a)*d);
+        if(isSolid(floor,tx,ty)) { visible=Math.max(0,d-.12); break; }
+      }
+      return {x:(origin.x+Math.cos(a)*visible)*TILE,y:(origin.y+Math.sin(a)*visible)*TILE};
+    };
+    ctx.beginPath();
+    ctx.moveTo(origin.x*TILE,origin.y*TILE);
+    for(let i=0;i<=steps;i++) {
+      const a=angle-halfAngle+(2*halfAngle*i/steps);
+      const end=rayEnd(a);
+      ctx.lineTo(end.x,end.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle=color;
+    ctx.fill();
+  }
+
+  function drawCamera(c,floor) {
+    const dir=cameraFacing(c,game.elapsed);
+    if(dir) drawVision(c,dir,5.2,.82,'#b898ff18',floor);
+    const x=c.x*TILE,y=c.y*TILE;
+    ctx.save();ctx.translate(x,y);ctx.fillStyle='#aa8cf1';ctx.strokeStyle='#e4d8ff';ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#111522';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f3edff';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(c.id||'C',0,22);
+    if(dir){ctx.strokeStyle='#f4efff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dir.x*14,dir.y*14);ctx.stroke();}
+    ctx.restore();
+  }
+  function drawGuard(g) {
+    drawVision(g,g.facing,4.2,.99,g.mode==='chase'?'#ff5d6b20':'#ff5d6b10',game.floor);
+    const x=g.x*TILE,y=g.y*TILE;
+    ctx.save();ctx.translate(x,y);
+    ctx.fillStyle=g.mode==='chase'?'#ff344f':'#e65e6a';ctx.strokeStyle='#ffd3d5';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff0f0';ctx.beginPath();ctx.arc(g.facing.x*7,g.facing.y*7,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#391821';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText(g.id||'G',0,3);
+    ctx.restore();
+  }
+  function drawDog(d) {
+    const x=d.x*TILE,y=d.y*TILE;
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=d.mode==='chase'?'#ffb63d':'#d5a94f';ctx.strokeStyle='#ffedb8';ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.arc(d.facing.x*10,d.facing.y*7,6,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#352a14';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(d.id||'D',0,3);ctx.beginPath();ctx.arc(d.facing.x*12,d.facing.y*7,1.6,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  function drawPlayer(p) {
+    const x=p.x*TILE,y=p.y*TILE;
+    ctx.save();ctx.translate(x,y);ctx.shadowColor='#55dbea';ctx.shadowBlur=18;
+    ctx.fillStyle='#3bc6db';ctx.strokeStyle='#d9fbff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle='#07202a';ctx.beginPath();ctx.arc(p.facing.x*7,p.facing.y*7,3,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  function drawWife(w) {
+    const x=w.x*TILE,y=w.y*TILE;
+    ctx.save();ctx.translate(x,y);ctx.shadowColor='#ff9bc1';ctx.shadowBlur=16;
+    ctx.fillStyle='#f28bb6';ctx.strokeStyle='#ffe2ee';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle='#53253d';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('W',0,3);ctx.restore();
+  }
+  function drawWifeMarker(w) {
+    drawWife(w);
+    ctx.fillStyle='#ffd5e5';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText('WIFE',w.x*TILE,w.y*TILE-19);
+  }
+  function drawHelicopter(h) {
+    const x=h.x*TILE,y=h.y*TILE;
+    ctx.save();ctx.translate(x,y);ctx.shadowColor='#7ce7a9';ctx.shadowBlur=16;
+    ctx.fillStyle='#3b9b72';ctx.strokeStyle='#b5f5d1';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(0,0,23,13,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(17,0);ctx.lineTo(36,-5);ctx.lineTo(36,5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-4,-13);ctx.lineTo(4,-13);ctx.moveTo(0,-13);ctx.lineTo(0,-22);ctx.moveTo(-23,-22);ctx.lineTo(23,-22);ctx.stroke();
+    ctx.fillStyle='#ddfff0';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText('HELI',0,3);ctx.restore();
+  }
+  function drawSearchlight(s,floor) {
+    const dir=DIRS[s.dir];drawVision(s,dir,5.5,.78,'#f8e59a1d',floor);
+    ctx.save();ctx.translate(s.x*TILE,s.y*TILE);ctx.fillStyle='#f6d977';ctx.strokeStyle='#fff2be';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#332b13';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('L',0,3);ctx.restore();
+  }
+
+  function update(dt,now) {
+    if(game.state!=='playing') return;
+    game.elapsed+=dt;
+    game.timeLeft-=dt;
+    if(game.timeLeft<=0){game.timeLeft=0;lose('The five-minute countdown reached 00:00. The helicopter left without you.');return;}
+    movePlayer(dt);
+    updateWife(dt);
+    updateEnemySystems(dt,now);
+    if(game.state!=='playing') return;
+    uiAccumulator+=dt;
+    if(uiAccumulator>.08){updateHud();uiAccumulator=0;}
+  }
+
+  function loop(now) {
+    if(game.state!=='playing') {drawFloor(game.floor);return;}
+    const dt=clamp((now-lastFrame)/1000,0,.05);lastFrame=now;
+    update(dt,now);
+    drawFloor(game.floor);
+    if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)ui.toast.classList.remove('show');}
+    if(game.state==='playing') requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('keydown',(e)=>{
+    const key=e.key.toLowerCase();
+    if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' '].includes(key) && game && game.state==='playing') e.preventDefault();
+    keys[key]=true;
+    if(key==='e' && !e.repeat) {
+      interact();
+    }
+  },{passive:false});
+  document.addEventListener('keyup',(e)=>{keys[e.key.toLowerCase()]=false;});
+  window.addEventListener('blur',()=>{keys=Object.create(null);});
+  $('startBtn').addEventListener('click',startMission);
+  $('restartBtn').addEventListener('click',()=>{ui.result.classList.remove('show');ui.start.classList.add('show');newGame();drawFloor(game.floor);});
+
+  // Set initial title-screen state and render the first floor behind the briefing.
+  newGame();
+  drawFloor(game.floor);
+})();
+</script>
+</body>
+</html>
