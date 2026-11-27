@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data Detectives — Cipher Analysis Workbench</title>
+<style>
+:root{color-scheme:dark;--bg:#070d15;--panel:#101b2a;--panel2:#142338;--line:#263c58;--text:#e6edf7;--muted:#9baec5;--accent:#72c8b5;--accent2:#e3b36d;--danger:#ff8e8e;--ok:#7fe0ad;--shadow:0 18px 46px #0007}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 500px at 90% -10%,#17314a 0%,transparent 65%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}header{max-width:1220px;margin:0 auto;padding:34px 24px 18px}h1{font-size:clamp(27px,4vw,42px);margin:0 0 8px;letter-spacing:-.03em}h2{font-size:21px;margin:0 0 14px}h3{font-size:16px;margin:0 0 10px}.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase}.sub{color:var(--muted);max-width:830px;margin:0}.wrap{max-width:1220px;margin:0 auto;padding:0 24px 42px}.notice{margin:18px 0;padding:12px 15px;border:1px solid #6b5837;background:#392b174d;border-radius:12px;color:#f0d4a2}.notice strong{color:#ffe2ad}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.tab{background:#0e1927;border:1px solid var(--line);color:var(--muted);padding:10px 15px;border-radius:10px;cursor:pointer;font-weight:700}.tab.active{color:var(--text);background:#1a3146;border-color:#467a86}.panel{display:none}.panel.active{display:block}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:linear-gradient(155deg,#132237,#0d1724);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);min-width:0}.c12{grid-column:span 12}.c8{grid-column:span 8}.c6{grid-column:span 6}.c4{grid-column:span 4}.muted{color:var(--muted)}label{display:block;font-weight:650;color:#c8d5e5;font-size:13px;margin:0 0 6px}input,select,textarea{width:100%;background:#07111d;color:var(--text);border:1px solid #344c68;border-radius:9px;padding:11px 12px;font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #72c8b51c}textarea{min-height:150px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.field{flex:1;min-width:190px}.btn{border:1px solid #467f7c;background:#17443f;color:#e8fff9;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.14)}.btn.secondary{background:#14253a;border-color:#415c7b;color:#dce8f7}.btn.ghost{background:transparent;border-color:#344c68;color:#bdcce0}.btn:disabled{opacity:.45;cursor:not-allowed}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.status{padding:11px 13px;border-radius:9px;background:#142237;color:#b9cce1;margin-top:12px;min-height:42px}.status.ok{border:1px solid #31765e;color:#a5e9c1}.status.bad{border:1px solid #8d4444;color:#ffb4b4}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.small{font-size:12px;color:var(--muted)}.pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;background:#203149;color:#c1d4e8;font-size:11px;font-weight:800}.pill.warn{background:#42321c;color:#f4d69e}.filebox{border:1px dashed #45617e;padding:14px;border-radius:12px;background:#0b1725}.tablewrap{max-height:400px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:12px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 10px;border-bottom:1px solid #25384f;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#192b41;color:#cfdeef;z-index:1}td{color:#c4d1e1}tr:last-child td{border-bottom:0}.check{text-align:center;width:42px}.check input{width:auto}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.keyhint{margin-top:6px;color:var(--muted);font-size:12px}.bar-chart{display:grid;grid-template-columns:repeat(26,minmax(18px,1fr));gap:4px;align-items:end;min-height:205px;border-bottom:1px solid #476078;padding:10px 4px 0;overflow-x:auto}.bar-group{height:185px;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:3px;min-width:18px}.bars{height:150px;display:flex;gap:2px;align-items:end}.bar{width:7px;min-height:1px;border-radius:3px 3px 0 0;background:#7ccdb4}.bar.after{background:#e4b36b}.letter{font-size:10px;color:#b5c5d8}.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin:8px 0}.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;background:#7ccdb4}.dot.after{background:#e4b36b}.resultrow{display:grid;grid-template-columns:1fr 1fr 145px;gap:12px;padding:10px 0;border-bottom:1px solid #263c58}.resultrow:last-child{border-bottom:0}.tagok{color:var(--ok);font-weight:700}.tagbad{color:var(--danger);font-weight:700}.hidden{display:none!important}footer{max-width:1220px;margin:0 auto;padding:0 24px 28px;color:#7087a0;font-size:12px}
+@media(max-width:850px){.c8,.c6,.c4{grid-column:span 12}.two,.split{grid-template-columns:1fr}.resultrow{grid-template-columns:1fr}.bar-chart{grid-template-columns:repeat(26,20px)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">TGF // Data Detectives // Assignment 03 • FINAL</div>
+  <h1>Cipher Analysis Workbench</h1>
+  <p class="sub">Encrypt, decrypt, and inspect messages locally in this browser. CSV records and MessageIDs are retained; processed results are added in separate columns. No file is uploaded to a server. Dataset profile: 632 messages — 370 plaintext (level 0), 196 DD1, and 66 DD2.</p>
+  <nav class="tabs"><button class="tab active" data-panel="workbench">Workbench</button><button class="tab" data-panel="csv">CSV batch</button><button class="tab" data-panel="frequency">A–Z frequency</button><button class="tab" data-panel="guide">Cipher guide</button></nav>
+</header>
+<main class="wrap">
+<section id="workbench" class="panel active">
+ <div class="grid">
+  <div class="card c12">
+   <h2>Text workbench</h2>
+   <div class="row">
+    <div class="field"><label for="cipher">Cipher</label><select id="cipher"><option value="vigenere">Vigenère</option><option value="aes">AES-256-GCM</option><option value="caesar">Caesar (additional cipher)</option></select></div>
+    <div class="field"><label for="messageFormat">Encrypted message format</label><select id="messageFormat"><option value="standard">Standard (without DD prefix)</option><option value="dd1">DD1:Vigenère text</option><option value="dd2">DD2.MessageID.IV.Tag.Ciphertext</option><option value="auto">Auto-detect for decryption / standard output</option></select><div class="keyhint" id="formatHint">Standard output: no DD prefix.</div></div>
+    <div class="field"><label for="action">Action</label><select id="action"><option value="encrypt">Encrypt</option><option value="decrypt">Decrypt</option></select></div>
+    <div class="field" id="keyField"><label for="key">Vigenère key</label><input id="key" type="password" autocomplete="off" placeholder="Enter key (A–Z letters)"><div class="keyhint" id="keyHint">Letters only; key repeats; punctuation and spaces stay unchanged.</div></div>
+    <div class="field hidden" id="shiftField"><label for="shift">Caesar shift (0–25)</label><input id="shift" type="number" min="0" max="25" step="1" value="3"></div>
+   </div>
+   <div class="row hidden" id="dd2Options" style="margin-top:12px"><div class="field" id="dd2MessageField"><label for="dd2MessageId">MessageID (used when encrypting DD2)</label><input id="dd2MessageId" value="MSG-NEW-001" placeholder="e.g. MSG-000212"></div><div class="field"><label for="dd2Aad">AES-GCM additional authenticated data</label><select id="dd2Aad"><option value="none">None</option><option value="messageId">MessageID</option></select><div class="keyhint">Choose the AAD rule used by the DD2 format. A mismatch causes authentication failure.</div></div></div>
+   <div class="row hidden" id="autoOptions" style="margin-top:12px"><div class="field"><label for="autoDD1Key">DD1 Vigenère key</label><input id="autoDD1Key" type="password" autocomplete="off" placeholder="Enter DD1 key"></div><div class="field"><label for="autoDD2Key">DD2 AES-256 key (64 hex characters)</label><input id="autoDD2Key" type="password" autocomplete="off" placeholder="Enter DD2 key"></div><div class="field"><label for="autoAad">DD2 authenticated data</label><select id="autoAad"><option value="none">None</option><option value="messageId">MessageID</option></select></div></div>
+   <div class="field hidden" id="aesFormatField" style="margin-top:12px"><label>AES envelope formats</label><input value="Standard: AES256GCM:v1:IV-base64:ciphertext-and-tag-base64 | DD2: DD2.MessageID.NonceHex.TagHex.CiphertextBase64URL" disabled><div class="keyhint">DD2 stores the 12-byte nonce and 16-byte authentication tag as hex; ciphertext is Base64URL.</div></div>
+   <div class="two" style="margin-top:14px">
+    <div><label for="plainText">Original text / ciphertext</label><textarea id="plainText" spellcheck="false" placeholder="Type or paste a message here…"></textarea></div>
+    <div><label for="resultText">Result</label><textarea id="resultText" spellcheck="false" readonly placeholder="Encrypted or decrypted result will appear here…"></textarea></div>
+   </div>
+   <div class="toolbar"><button class="btn" id="processText">Process text</button><button class="btn secondary" id="copyResult">Copy result</button><button class="btn ghost" id="downloadTxt">Download result .txt</button><button class="btn ghost" id="clearText">Clear</button></div>
+   <div class="status" id="textStatus" role="status">Ready. Choose a cipher and action, enter its key/settings, and process your text.</div>
+  </div>
+  <div class="card c6">
+   <h2>Import text file</h2>
+   <div class="filebox"><label for="txtFile">Choose a .txt file</label><input id="txtFile" type="file" accept=".txt,text/plain"><div class="small">The file contents will be placed in the original-text box.</div></div>
+  </div>
+  <div class="card c6">
+   <h2>Import CSV file</h2>
+   <div class="filebox"><label for="csvFile">Choose a .csv file</label><input id="csvFile" type="file" accept=".csv,text/csv"><div class="small">For batch processing, use the CSV batch tab. Original records are preserved.</div></div>
+  </div>
+ </div>
+</section>
+<section id="csv" class="panel">
+ <div class="grid">
+  <div class="card c12">
+   <h2>CSV batch processing</h2>
+   <p class="muted">Upload a CSV, choose the message column and select the records to process. The tool keeps every original cell and MessageID, then appends a result and status column to the export.</p>
+   <div class="row"><div class="field"><label for="csvFileBatch">CSV file</label><input id="csvFileBatch" type="file" accept=".csv,text/csv"></div><div class="field"><label for="messageColumn">Message column</label><select id="messageColumn" disabled><option>Upload a CSV first</option></select></div><div class="field"><label for="rowSearch">Find rows (any column)</label><input id="rowSearch" placeholder="Optional search term…" disabled></div></div>
+   <div class="small" id="csvMeta" style="margin-top:10px">No CSV loaded.</div>
+   <div class="row" style="margin-top:12px">
+    <div class="field"><label for="batchCipher">Cipher</label><select id="batchCipher"><option value="vigenere">Vigenère</option><option value="aes">AES-256-GCM</option><option value="caesar">Caesar</option></select></div>
+    <div class="field"><label for="batchFormat">Encrypted message format</label><select id="batchFormat"><option value="standard">Standard (without DD prefix)</option><option value="dd1">DD1:Vigenère text</option><option value="dd2">DD2.MessageID.IV.Tag.Ciphertext</option><option value="auto">Auto-detect for decryption / standard output</option></select></div>
+    <div class="field"><label for="batchAction">Action</label><select id="batchAction"><option value="decrypt">Decrypt</option><option value="encrypt">Encrypt</option></select></div>
+    <div class="field" id="batchKeyField"><label for="batchKey">Key</label><input id="batchKey" type="password" autocomplete="off" placeholder="Vigenère key"></div>
+    <div class="field hidden" id="batchDD1KeyField"><label for="batchDD1Key">DD1 Vigenère key</label><input id="batchDD1Key" type="password" autocomplete="off" placeholder="DD1 key from Senior Analyst"></div>
+    <div class="field hidden" id="batchDD2KeyField"><label for="batchDD2Key">DD2 AES-256 key (64 hex characters)</label><input id="batchDD2Key" type="password" autocomplete="off" placeholder="DD2 key from Senior Analyst"></div>
+    <div class="field hidden" id="batchAadField"><label for="batchAad">DD2 authenticated data</label><select id="batchAad"><option value="none">None</option><option value="messageId">MessageID</option></select></div>
+    <div class="field hidden" id="batchShiftField"><label for="batchShift">Caesar shift</label><input id="batchShift" type="number" min="0" max="25" value="3"></div>
+   </div>
+   <div class="keyhint" id="batchKeyHint">Auto-detect reads DD1: messages with the DD1 key and DD2. messages with the DD2 key. Unencrypted rows are left unchanged. The tool does not guess keys.</div>
+   <div class="toolbar"><button class="btn secondary" id="selectVisible">Select visible rows</button><button class="btn ghost" id="deselectVisible">Deselect visible rows</button><button class="btn" id="processRows" disabled>Process selected rows</button><button class="btn ghost" id="downloadCsv" disabled>Download processed CSV</button></div>
+   <div class="tablewrap"><table><thead id="csvHead"><tr><th>Upload a CSV to preview rows</th></tr></thead><tbody id="csvBody"><tr><td class="muted">No data loaded.</td></tr></tbody></table></div>
+   <div class="status" id="csvStatus" role="status">CSV rows will appear here. Rows are selected by default after import; you can deselect any rows you do not want to process.</div>
+  </div>
+  <div class="card c12">
+   <h2>Processed records — original and result</h2>
+   <div id="batchResults" class="muted">No rows have been processed yet.</div>
+  </div>
+ </div>
+</section>
+<section id="frequency" class="panel">
+ <div class="grid">
+  <div class="card c12">
+   <h2>Vigenère letter-frequency comparison</h2>
+   <p class="muted">T6: compare the percentage distribution of A–Z letters in the original plaintext and its Vigenère-encrypted result. Spaces, punctuation, digits, and line breaks are excluded from the percentage denominator.</p>
+   <div class="two"><div><label for="freqText">Plaintext</label><textarea id="freqText" placeholder="Enter or paste plaintext to analyze…"></textarea></div><div><label for="freqKey">Vigenère key</label><input id="freqKey" type="password" placeholder="Enter Vigenère key"><p class="keyhint">The tool encrypts this text for the comparison; it does not need you to paste the ciphertext.</p><button class="btn" id="runFrequency">Generate comparison</button></div></div>
+   <div class="status" id="freqStatus" role="status">Waiting for plaintext and key.</div>
+   <div class="legend"><span><i class="dot"></i>Before encryption</span><span><i class="dot after"></i>After encryption</span></div>
+   <div id="freqChart" class="bar-chart" aria-label="Grouped bar chart of A to Z percentages"></div>
+   <div id="freqSummary" class="small" style="margin-top:10px"></div>
+  </div>
+ </div>
+</section>
+<section id="guide" class="panel">
+ <div class="grid">
+  <div class="card c4"><span class="pill">Classical polyalphabetic</span><h2 style="margin-top:12px">Vigenère</h2><p>A substitution cipher that uses a repeating keyword. Each plaintext letter is shifted by the alphabet position of the corresponding key letter. This produces changing shifts rather than one fixed substitution. It is useful for learning classical cryptography, but it is not secure by modern standards.</p><p class="small">Tool convention: A=0 through Z=25; key letters repeat; non-A–Z characters remain unchanged and do not advance the key.</p></div>
+  <div class="card c4"><span class="pill">Modern authenticated encryption</span><h2 style="margin-top:12px">AES-256-GCM</h2><p>A symmetric authenticated-encryption mode using AES with a 256-bit key. GCM provides confidentiality and an authentication tag that detects changes or a wrong key. This tool generates a fresh 96-bit nonce for each encryption and stores it with the ciphertext. Decryption requires the same key, nonce, and unmodified encrypted data.</p><p class="small">Tool envelope: AES256GCM:v1:IV-base64:ciphertext-and-tag-base64.</p></div>
+  <div class="card c4"><span class="pill">Classical monoalphabetic</span><h2 style="margin-top:12px">Caesar</h2><p>A substitution cipher that shifts every alphabetic letter by the same fixed number of positions. The assignment's chosen demonstration setting is a shift of 3. It is simple to implement and explain, but very easy to break by trying the 25 possible non-zero shifts.</p><p class="small">Tool convention: preserves case and non-letter characters; shift can be set from 0 to 25.</p></div>
+  <div class="card c12"><h2>DD1 / DD2 formats observed in Communication_Logs.csv</h2>
+  <p><strong>DD1 (observed):</strong> <code>DD1:&lt;ciphertext&gt;</code>. The dataset shows this prefix followed by alphabetic text. This workbench treats the payload as Vigenère ciphertext because T1 requires Vigenère support. Compare with the professor’s separate reference page or ask the Senior Analyst to confirm the exact DD1 convention.</p>
+  <p><strong>DD2:</strong> <code>DD2.&lt;MessageID&gt;.&lt;NonceHex&gt;.&lt;TagHex&gt;.&lt;CiphertextBase64URL&gt;</code>. The observed nonce is 12 bytes (24 hex characters), the authentication tag is 16 bytes (32 hex characters), and the ciphertext uses unpadded Base64URL. The embedded MessageID matches the CSV MessageID field in all observed DD2 rows.</p>
+  <p class="muted">The dataset reveals the envelope layout, not the secret keys. It also does not establish whether MessageID is AES-GCM additional authenticated data (AAD); the tool offers both choices. The separate reference page was not included in the uploaded materials, so confirm the exact DD1/DD2 rules, keys, and AAD setting with your Senior Analyst before decrypting the actual logs.</p></div>
+ </div>
+</section>
+</main>
+<footer>Local-only processing • DD1/DD2 keys are entered at runtime and are not stored in the HTML • Keep an unchanged copy of Communication_Logs.csv.</footer>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const state = {headers:[], rows:[], selected:new Set(), processed:[], resultHeader:'ProcessedMessage', statusHeader:'ProcessingStatus', fileName:'', csvLoaded:false};
+
+function setStatus(id,msg,type=''){const el=$(id);el.textContent=msg;el.className='status'+(type?' '+type:'');}
+function lettersOnly(s){return String(s??'').toLowerCase().replace(/[^a-z]/g,'');}
+function vigenere(text,key,decode=false){
+ const k=lettersOnly(key); if(!k) throw new Error('Enter a Vigenère key containing at least one A–Z letter.');
+ let j=0,out='';
+ for(const ch of String(text)){const code=ch.charCodeAt(0);let base=-1;if(code>=65&&code<=90)base=65;else if(code>=97&&code<=122)base=97;
+  if(base<0){out+=ch;continue;}const shift=k.charCodeAt(j%k.length)-97;const n=(code-base+(decode?-shift:shift)+26)%26;out+=String.fromCharCode(base+n);j++;
+ }
+ return out;
+}
+function caesar(text,shift,decode=false){
+ const n=Number(shift);if(!Number.isInteger(n)||n<0||n>25)throw new Error('Caesar shift must be a whole number from 0 to 25.');
+ const s=decode?-n:n;let out='';for(const ch of String(text)){const code=ch.charCodeAt(0);let base=-1;if(code>=65&&code<=90)base=65;else if(code>=97&&code<=122)base=97;if(base<0){out+=ch;continue;}out+=String.fromCharCode(base+((code-base+s+260)%26));}return out;
+}
+function hexToBytes(hex){if(!/^[0-9a-fA-F]{64}$/.test(hex))throw new Error('AES-256-GCM requires exactly 64 hexadecimal characters (32 bytes).');const out=new Uint8Array(32);for(let i=0;i<32;i++)out[i]=parseInt(hex.slice(i*2,i*2+2),16);return out;}
+function bytesToHex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
+function hexStringToBytes(hex,expectedLength,label){if(!new RegExp(`^[0-9a-fA-F]{${expectedLength*2}}$`).test(hex))throw new Error(`${label} must be exactly ${expectedLength} bytes (${expectedLength*2} hexadecimal characters).`);const out=new Uint8Array(expectedLength);for(let i=0;i<expectedLength;i++)out[i]=parseInt(hex.slice(i*2,i*2+2),16);return out;}
+function bytesToB64(bytes){let bin='';const arr=new Uint8Array(bytes);for(let i=0;i<arr.length;i+=0x8000)bin+=String.fromCharCode(...arr.subarray(i,Math.min(i+0x8000,arr.length)));return btoa(bin);}
+function b64ToBytes(s){try{if(!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(s))throw 0;const bin=atob(s);return Uint8Array.from(bin,c=>c.charCodeAt(0));}catch{throw new Error('Invalid Base64 in AES message.');}}
+function bytesToB64Url(bytes){return bytesToB64(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function b64UrlToBytes(s){if(!/^[A-Za-z0-9_-]*$/.test(s))throw new Error('Invalid DD2 ciphertext: expected Base64URL characters.');const b64=s.replace(/-/g,'+').replace(/_/g,'/');return b64ToBytes(b64+'='.repeat((4-b64.length%4)%4));}
+async function getAesKey(keyHex,usage){if(!crypto?.subtle)throw new Error('Web Crypto is unavailable in this browser. Open the HTML file in a current browser or a secure local context.');return crypto.subtle.importKey('raw',hexToBytes(keyHex),{name:'AES-GCM'},false,[usage]);}
+async function aesProcess(text,keyHex,decode=false){
+ const key=await getAesKey(keyHex,decode?'decrypt':'encrypt');
+ if(!decode){const iv=crypto.getRandomValues(new Uint8Array(12));const data=new TextEncoder().encode(text);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv,tagLength:128},key,data);return 'AES256GCM:v1:'+bytesToB64(iv)+':'+bytesToB64(encrypted);}
+ const parts=String(text).trim().split(':');if(parts.length!==4||parts[0]!=='AES256GCM'||parts[1]!=='v1')throw new Error('Invalid AES format. Expected AES256GCM:v1:IV-base64:ciphertext-and-tag-base64.');
+ const iv=b64ToBytes(parts[2]);const data=b64ToBytes(parts[3]);if(iv.length!==12)throw new Error('Invalid AES-GCM nonce: expected 12 bytes (96 bits).');if(data.length<16)throw new Error('Invalid AES-GCM payload: ciphertext must include a 16-byte authentication tag.');
+ try{const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv,tagLength:128},key,data);return new TextDecoder('utf-8',{fatal:true}).decode(plain);}catch(e){throw new Error('AES-GCM authentication failed. Check the key and confirm the IV/ciphertext/tag have not been changed.');}
+}
+function dd1Process(text,key,decode=false){
+ const raw=String(text);
+ if(decode){if(!raw.startsWith('DD1:'))throw new Error('Invalid DD1 format. Expected DD1:<Vigenère ciphertext>.');return vigenere(raw.slice(4),key,true);}
+ return 'DD1:'+vigenere(raw,key,false);
+}
+async function dd2Process(text,keyHex,decode=false,options={}){
+ const key=await getAesKey(keyHex,decode?'decrypt':'encrypt');
+ const aadMode=options.aadMode||'none';
+ if(!decode){
+   const messageId=String(options.messageId||'').trim();
+   if(!/^MSG-[A-Za-z0-9-]+$/.test(messageId))throw new Error('DD2 encryption requires a MessageID such as MSG-000212.');
+   const iv=crypto.getRandomValues(new Uint8Array(12));
+   const additionalData=aadMode==='messageId'?new TextEncoder().encode(messageId):undefined;
+   const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv,tagLength:128,...(additionalData?{additionalData}: {})},key,new TextEncoder().encode(text));
+   const all=new Uint8Array(encrypted);if(all.length<16)throw new Error('Unexpected AES-GCM output.');
+   const cipher=all.slice(0,-16),tag=all.slice(-16);
+   return `DD2.${messageId}.${bytesToHex(iv)}.${bytesToHex(tag)}.${bytesToB64Url(cipher)}`;
+ }
+ const parts=String(text).trim().split('.');
+ if(parts.length!==5||parts[0]!=='DD2')throw new Error('Invalid DD2 format. Expected DD2.MessageID.NonceHex.TagHex.CiphertextBase64URL.');
+ const messageId=parts[1];
+ if(!/^MSG-[A-Za-z0-9-]+$/.test(messageId))throw new Error('Invalid DD2 MessageID field.');
+ if(options.messageId&&String(options.messageId).trim()!==messageId)throw new Error(`DD2 MessageID mismatch: envelope has ${messageId}, CSV row has ${options.messageId}.`);
+ const iv=hexStringToBytes(parts[2],12,'DD2 nonce');
+ const tag=hexStringToBytes(parts[3],16,'DD2 authentication tag');
+ const ciphertext=b64UrlToBytes(parts[4]);
+ if(ciphertext.length===0)throw new Error('DD2 ciphertext is empty.');
+ const combined=new Uint8Array(ciphertext.length+tag.length);combined.set(ciphertext);combined.set(tag,ciphertext.length);
+ const additionalData=aadMode==='messageId'?new TextEncoder().encode(messageId):undefined;
+ try{const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv,tagLength:128,...(additionalData?{additionalData}: {})},key,combined);return new TextDecoder('utf-8',{fatal:true}).decode(plain);}
+ catch(e){throw new Error('DD2 AES-GCM authentication failed. Check the DD2 key and the AAD setting (None or MessageID); the ciphertext, nonce and tag must remain unchanged.');}
+}
+async function transform(text,cipher,action,key,shift,options={}){
+ const dec=action==='decrypt';
+ if(cipher==='vigenere')return vigenere(text,key,dec);
+ if(cipher==='dd1')return dd1Process(text,key,dec);
+ if(cipher==='aes')return await aesProcess(text,key,dec);
+ if(cipher==='dd2')return await dd2Process(text,key,dec,options);
+ if(cipher==='caesar')return caesar(text,shift,dec);
+ if(cipher==='auto'){
+   if(!dec)throw new Error('Auto-detect mode is for decryption only. Choose DD1 or DD2 explicitly when encrypting.');
+   const s=String(text).trimStart();
+   if(s.startsWith('DD1:'))return dd1Process(text,options.dd1Key,true);
+   if(s.startsWith('DD2.'))return await dd2Process(text,options.dd2Key,true,{aadMode:options.aadMode,messageId:options.messageId});
+   throw new Error('This row is not a DD1 or DD2 encrypted message; it may be plaintext (EncryptionLevel 0).');
+ }
+ throw new Error('Choose a supported cipher.');
+}
+
+async function transformWithFormat(text,cipher,format,action,key,shift,options={}){
+ const dec=action==='decrypt';
+ if(format==='auto'&&dec){
+   const raw=String(text).trimStart();
+   if(raw.startsWith('DD1:'))return dd1Process(String(text).trimStart(),options.dd1Key,true);
+   if(raw.startsWith('DD2.'))return await dd2Process(text,options.dd2Key,true,{aadMode:options.aadMode,messageId:options.messageId});
+   throw new Error('Auto-detect could not find a DD1: or DD2. prefix. The row may be plaintext or use another format.');
+ }
+ if(format==='dd1'){
+   if(cipher!=='vigenere')throw new Error('DD1 format requires the Vigenère cipher. Select Vigenère in the Cipher dropdown.');
+   return dd1Process(text,key,dec);
+ }
+ if(format==='dd2'){
+   if(cipher!=='aes')throw new Error('DD2 format requires AES-256-GCM. Select AES-256-GCM in the Cipher dropdown.');
+   return await dd2Process(text,key,dec,options);
+ }
+ // "Auto-detect / standard output" uses ordinary output when encrypting.
+ return await transform(text,cipher,action,key,shift,options);
+}
+
+function updateCipherFields(prefix=''){
+ if(prefix===''){
+   const c=$('cipher').value, f=$('messageFormat').value, action=$('action').value;
+   const autoDecrypt=f==='auto'&&action==='decrypt';
+   const usesAes=c==='aes', usesCaesar=c==='caesar';
+   $('keyField').classList.toggle('hidden',autoDecrypt||usesCaesar);
+   $('shiftField').classList.toggle('hidden',autoDecrypt||!usesCaesar);
+   $('aesFormatField').classList.toggle('hidden',!usesAes);
+   $('dd2Options').classList.toggle('hidden',f!=='dd2');
+   $('autoOptions').classList.toggle('hidden',!autoDecrypt);
+   $('dd2MessageField').classList.toggle('hidden',action!=='encrypt');
+   $('key').type='password';
+   document.querySelector('label[for="key"]').textContent=usesAes?'AES-256 key (hex)':'Vigenère key';
+   $('key').placeholder=usesAes?'Enter 64-character AES key in hex':'Enter Vigenère key (A–Z letters)';
+   $('keyHint').textContent=usesAes?'Enter a 256-bit key as exactly 64 hexadecimal characters. The key is never saved by this tool.':usesCaesar?'Caesar uses the numeric shift below.':'Letters only; key repeats; punctuation and spaces stay unchanged.';
+   const formatHints={
+     standard:'Standard output has no DD prefix. Choose any of the three ciphers above.',
+     dd1:'DD1 wraps Vigenère ciphertext as DD1:<ciphertext>. Select Vigenère above.',
+     dd2:'DD2 packages AES-GCM data as DD2.MessageID.NonceHex.TagHex.CiphertextBase64URL. Select AES-256-GCM above.',
+     auto:'On decryption, the DD1: or DD2. prefix selects the matching format. Enter both DD keys below. On encryption, the selected cipher uses standard output.'
+   };
+   let hint=formatHints[f]||'';
+   if(f==='dd1'&&c!=='vigenere')hint+=' Warning: DD1 requires Vigenère.';
+   if(f==='dd2'&&c!=='aes')hint+=' Warning: DD2 requires AES-256-GCM.';
+   $('formatHint').textContent=hint;
+ } else {
+   const c=$('batchCipher').value, f=$('batchFormat').value, action=$('batchAction').value;
+   const autoDecrypt=f==='auto'&&action==='decrypt';
+   $('batchKeyField').classList.toggle('hidden',autoDecrypt||c==='caesar');
+   $('batchDD1KeyField').classList.toggle('hidden',!autoDecrypt);
+   $('batchDD2KeyField').classList.toggle('hidden',!autoDecrypt);
+   $('batchAadField').classList.toggle('hidden',!(f==='dd2'||autoDecrypt));
+   $('batchShiftField').classList.toggle('hidden',autoDecrypt||c!=='caesar');
+   $('batchKey').placeholder=c==='aes'?'64-character AES key in hex':'Vigenère key';
+   document.querySelector('label[for="batchKey"]').textContent=c==='aes'?'AES-256 key (hex)':'Vigenère key';
+   const hints={
+     auto:'Decrypt only: DD1: rows use the DD1 Vigenère key; DD2. rows use the DD2 AES key. Plaintext rows are skipped. With Encrypt selected, the chosen cipher uses standard output.',
+     dd1:'DD1 envelope: DD1:<ciphertext>. Choose Vigenère and enter the DD1 key in the key field.',
+     dd2:'DD2 envelope: DD2.MessageID.NonceHex.TagHex.CiphertextBase64URL. Choose AES-256-GCM and enter its key.',
+     standard:'Standard format has no DD prefix. Use the selected cipher and its key/settings.',
+   };
+   let hint=hints[f]||'';
+   if(f==='dd1'&&c!=='vigenere')hint+=' DD1 requires Vigenère.';
+   if(f==='dd2'&&c!=='aes')hint+=' DD2 requires AES-256-GCM.';
+   $('batchKeyHint').textContent=hint;
+ }
+}
+$('cipher').addEventListener('change',()=>updateCipherFields());
+$('messageFormat').addEventListener('change',()=>updateCipherFields());
+$('action').addEventListener('change',()=>updateCipherFields());
+$('batchCipher').addEventListener('change',()=>updateCipherFields('batch'));
+$('batchFormat').addEventListener('change',()=>updateCipherFields('batch'));
+$('batchAction').addEventListener('change',()=>updateCipherFields('batch'));
+
+$('processText').addEventListener('click',async()=>{const source=$('plainText').value;if(!source){setStatus('textStatus','Enter or import some text first.','bad');return;}const btn=$('processText');btn.disabled=true;try{const format=$('messageFormat').value, action=$('action').value;
+ const isAutoDecrypt=format==='auto'&&action==='decrypt';
+ const result=await transformWithFormat(source,$('cipher').value,format,action,$('key').value,$('shift').value,{
+   messageId:action==='encrypt'&&format==='dd2'?$('dd2MessageId').value:'',
+   aadMode:format==='auto'?$('autoAad').value:$('dd2Aad').value,
+   dd1Key:$('autoDD1Key').value,dd2Key:$('autoDD2Key').value
+ });$('resultText').value=result;setStatus('textStatus','Processed successfully. Original text is unchanged.','ok');}catch(e){$('resultText').value='';setStatus('textStatus',e.message||'Processing failed.','bad');}finally{btn.disabled=false;}});
+$('copyResult').addEventListener('click',async()=>{const s=$('resultText').value;if(!s){setStatus('textStatus','There is no result to copy.','bad');return;}try{await navigator.clipboard.writeText(s);setStatus('textStatus','Result copied to clipboard.','ok');}catch{ $('resultText').focus();$('resultText').select();setStatus('textStatus','Clipboard access was blocked. The result is selected; copy it manually.');}});
+$('downloadTxt').addEventListener('click',()=>{const s=$('resultText').value;if(!s){setStatus('textStatus','There is no result to download.','bad');return;}downloadBlob(s,'cipher-result.txt','text/plain;charset=utf-8');});
+$('clearText').addEventListener('click',()=>{$('plainText').value='';$('resultText').value='';setStatus('textStatus','Text fields cleared.','');});
+$('txtFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{$('plainText').value=await f.text();$('resultText').value='';setStatus('textStatus',`Loaded ${f.name}.`,'ok');}catch{setStatus('textStatus','Could not read this text file.','bad');}e.target.value='';});
+$('csvFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)loadCsvFile(f);e.target.value='';});
+$('csvFileBatch').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)loadCsvFile(f);});
+function parseCSV(input){const text=String(input).replace(/^\uFEFF/,'');const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(c==='"')quoted=false;else cell+=c;}else{if(c==='"'&&cell==='')quoted=true;else if(c===','){row.push(cell);cell='';}else if(c==='\n'){row.push(cell.replace(/\r$/,''));if(row.some(v=>v!==''))rows.push(row);row=[];cell='';}else cell+=c;}}row.push(cell.replace(/\r$/,''));if(row.some(v=>v!==''))rows.push(row);if(!rows.length)throw new Error('The CSV file is empty.');const headers=rows.shift().map((h,i)=>h.trim()||`Column${i+1}`);const width=headers.length;const data=rows.map(r=>Array.from({length:width},(_,i)=>r[i]??''));return {headers,rows:data};}
+function loadCsvFile(file){file.text().then(raw=>{try{const parsed=parseCSV(raw);state.headers=parsed.headers;state.rows=parsed.rows;state.fileName=file.name;state.csvLoaded=true;state.selected=new Set(state.rows.map((_,i)=>i));state.processed=[];const existing=state.headers.map(x=>x.toLowerCase());state.resultHeader=uniqueColumn('ProcessedMessage',existing);existing.push(state.resultHeader.toLowerCase());state.statusHeader=uniqueColumn('ProcessingStatus',existing);const selects=$('messageColumn');selects.innerHTML='';state.headers.forEach((h,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=h;selects.appendChild(o);});let guess=state.headers.findIndex(h=>/^(message|messagebody|messagetext|ciphertext|content|text)$/i.test(h));if(guess<0)guess=state.headers.findIndex(h=>/message|cipher|content|text/i.test(h));selects.value=String(Math.max(0,guess));selects.disabled=false;$('rowSearch').disabled=false;$('processRows').disabled=false;$('downloadCsv').disabled=true;renderCsv();$('csvMeta').textContent=`${file.name} · ${state.rows.length.toLocaleString()} records · ${state.headers.length} columns · selected ${state.selected.size.toLocaleString()}`;setStatus('csvStatus','CSV loaded. Original rows and identifiers are kept unchanged. Review the message column and selected rows before processing.','ok');$('batchResults').textContent='No rows have been processed yet.';}catch(e){setStatus('csvStatus',e.message||'Could not parse CSV.','bad');}}).catch(()=>setStatus('csvStatus','Could not read the CSV file.','bad'));}
+function uniqueColumn(base,existing){let n=base,i=2;while(existing.includes(n.toLowerCase()))n=base+'_'+i++;return n;}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderCsv(){if(!state.csvLoaded)return;const q=$('rowSearch').value.trim().toLowerCase();const shown=state.rows.map((r,i)=>({r,i})).filter(x=>!q||x.r.some(v=>String(v).toLowerCase().includes(q)));$('csvHead').innerHTML='<tr><th class="check"><input type="checkbox" id="checkAll" checked aria-label="Select all visible rows"></th><th>#</th>'+state.headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';$('csvBody').innerHTML=shown.map(({r,i})=>`<tr><td class="check"><input class="rowCheck" type="checkbox" data-index="${i}" ${state.selected.has(i)?'checked':''}></td><td>${i+1}</td>${r.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan="3" class="muted">No matching rows.</td></tr>';$('checkAll').checked=shown.length>0&&shown.every(x=>state.selected.has(x.i));$('checkAll').addEventListener('change',e=>{shown.forEach(x=>e.target.checked?state.selected.add(x.i):state.selected.delete(x.i));renderCsv();});document.querySelectorAll('.rowCheck').forEach(el=>el.addEventListener('change',e=>{const i=Number(e.target.dataset.index);e.target.checked?state.selected.add(i):state.selected.delete(i);$('csvMeta').textContent=`${state.fileName} · ${state.rows.length.toLocaleString()} records · ${state.headers.length} columns · selected ${state.selected.size.toLocaleString()}`;}));}
+$('rowSearch').addEventListener('input',renderCsv);$('messageColumn').addEventListener('change',()=>{const h=state.headers[Number($('messageColumn').value)];setStatus('csvStatus',`Message column set to “${h}”. No source values have been changed.`);});
+$('selectVisible').addEventListener('click',()=>{const q=$('rowSearch').value.trim().toLowerCase();state.rows.forEach((r,i)=>{if(!q||r.some(v=>String(v).toLowerCase().includes(q)))state.selected.add(i);});renderCsv();$('csvMeta').textContent=`${state.fileName} · ${state.rows.length.toLocaleString()} records · ${state.headers.length} columns · selected ${state.selected.size.toLocaleString()}`;});
+$('deselectVisible').addEventListener('click',()=>{const q=$('rowSearch').value.trim().toLowerCase();state.rows.forEach((r,i)=>{if(!q||r.some(v=>String(v).toLowerCase().includes(q)))state.selected.delete(i);});renderCsv();$('csvMeta').textContent=`${state.fileName} · ${state.rows.length.toLocaleString()} records · ${state.headers.length} columns · selected ${state.selected.size.toLocaleString()}`;});
+$('processRows').addEventListener('click',async()=>{
+ if(!state.csvLoaded)return;
+ const col=Number($('messageColumn').value);
+ if(!Number.isInteger(col)||col<0||col>=state.headers.length){setStatus('csvStatus','Choose a valid message column.','bad');return;}
+ if(!state.selected.size){setStatus('csvStatus','Select at least one row to process.','bad');return;}
+ const cipher=$('batchCipher').value,format=$('batchFormat').value,action=$('batchAction').value,key=$('batchKey').value,shift=$('batchShift').value;
+ if(format==='dd1'&&cipher!=='vigenere'){setStatus('csvStatus','DD1 format requires the Vigenère cipher. Select Vigenère.','bad');return;}
+ if(format==='dd2'&&cipher!=='aes'){setStatus('csvStatus','DD2 format requires AES-256-GCM. Select AES-256-GCM.','bad');return;}
+ const autoDecrypt=format==='auto'&&action==='decrypt';
+ const messageIdCol=state.headers.findIndex(h=>/^MessageID$/i.test(h));
+ const btn=$('processRows');btn.disabled=true;
+ const out=new Array(state.rows.length).fill(null);let ok=0,failed=0,skipped=0;
+ try {
+  for(const i of [...state.selected].sort((a,b)=>a-b)){
+   const msg=state.rows[i][col];const messageId=messageIdCol>=0?state.rows[i][messageIdCol]:'';
+   if(!String(msg??'').trim()){out[i]={result:'',status:'Skipped: blank message'};skipped++;continue;}
+   if(autoDecrypt&&!String(msg).trimStart().startsWith('DD1:')&&!String(msg).trimStart().startsWith('DD2.')){
+     out[i]={result:'',status:'Skipped: plaintext / not a DD1 or DD2 envelope'};skipped++;continue;
+   }
+   try{
+     const result=await transformWithFormat(msg,cipher,format,action,key,shift,{
+       messageId:messageId|| (action==='encrypt'&&format==='dd2'?'':undefined),
+       aadMode:$('batchAad').value,
+       dd1Key:$('batchDD1Key').value,
+       dd2Key:$('batchDD2Key').value
+     });
+     out[i]={result,status:`Success: ${action} (${cipher}; ${format} format)`};ok++;
+   }catch(e){out[i]={result:'',status:`Error: ${e.message||'processing failed'}`};failed++;}
+  }
+  state.processed=out;renderBatchResults();$('downloadCsv').disabled=false;
+  setStatus('csvStatus',`Processing finished: ${ok} successful, ${failed} failed, ${skipped} skipped. Original rows, MessageIDs and other source fields are retained.`,failed?'bad':'ok');
+ } finally {btn.disabled=false;}
+});
+function renderBatchResults(){const done=state.processed.map((p,i)=>p?{p,i}:null).filter(Boolean);if(!done.length){$('batchResults').textContent='No rows have been processed yet.';return;}const col=Number($('messageColumn').value);$('batchResults').innerHTML=done.map(({p,i})=>`<div class="resultrow"><div><div class="small">Record ${i+1} · ${esc(state.headers[col])}</div><div class="mono">${esc(state.rows[i][col])}</div></div><div><div class="small">Result</div><div class="mono">${esc(p.result)}</div></div><div class="${p.status.startsWith('Success')?'tagok':p.status.startsWith('Error')?'tagbad':'small'}">${esc(p.status)}</div></div>`).join('');}
+$('downloadCsv').addEventListener('click',()=>{if(!state.csvLoaded)return;const headers=[...state.headers,state.resultHeader,state.statusHeader];const rows=state.rows.map((r,i)=>{const p=state.processed[i];return [...r,p?p.result:'',state.selected.has(i)?(p?p.status:'Not processed'):'Not selected'];});downloadBlob(toCSV(headers,rows),state.fileName.replace(/\.csv$/i,'')+'_processed.csv','text/csv;charset=utf-8');});
+function toCSV(headers,rows){const q=v=>{const s=String(v??'');return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};return [headers,...rows].map(r=>r.map(q).join(',')).join('\r\n');}
+function downloadBlob(content,name,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function freq(s){const counts=Array(26).fill(0);let total=0;for(const ch of String(s)){const c=ch.toUpperCase().charCodeAt(0)-65;if(c>=0&&c<26){counts[c]++;total++;}}return counts.map(x=>total?x*100/total:0);}
+$('runFrequency').addEventListener('click',()=>{try{const src=$('freqText').value,key=$('freqKey').value;if(!src)throw new Error('Enter plaintext for the frequency comparison.');const encrypted=vigenere(src,key,false),a=freq(src),b=freq(encrypted),max=Math.max(1,...a,...b);$('freqChart').innerHTML=a.map((v,i)=>`<div class="bar-group" title="${String.fromCharCode(65+i)} · before ${v.toFixed(2)}% · after ${b[i].toFixed(2)}%"><div class="bars"><div class="bar" style="height:${v/max*142}px" aria-label="Before ${v.toFixed(2)} percent"></div><div class="bar after" style="height:${b[i]/max*142}px" aria-label="After ${b[i].toFixed(2)} percent"></div></div><div class="letter">${String.fromCharCode(65+i)}</div></div>`).join('');$('freqSummary').textContent=`Letters counted: before ${freqCount(src)} · after ${freqCount(encrypted)}. Percentages are calculated separately within each text.`;setStatus('freqStatus','Vigenère encryption and A–Z frequency comparison completed.','ok');}catch(e){$('freqChart').innerHTML='';$('freqSummary').textContent='';setStatus('freqStatus',e.message||'Could not generate chart.','bad');}});
+function freqCount(s){return (String(s).match(/[A-Za-z]/g)||[]).length;}
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===btn.dataset.panel));}));
+updateCipherFields();updateCipherFields('batch');
+</script>
+</body>
+</html>
